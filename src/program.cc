@@ -140,8 +140,12 @@ void display()
     TEST_OPENGL_ERROR();
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
     TEST_OPENGL_ERROR();
-    glDrawArrays(GL_TRIANGLES, 0, p->triangles_);
-    TEST_OPENGL_ERROR();
+    for (unsigned int VAO : p->vao_list)
+    {
+        glBindVertexArray(VAO);
+        glDrawArrays(GL_TRIANGLES, 0, p->triangles_);
+        TEST_OPENGL_ERROR();
+    }
     glutSwapBuffers();
 }
 

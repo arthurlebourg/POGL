@@ -45,6 +45,7 @@ public:
 
     unsigned int shader_program_;
     unsigned int triangles_;
+    std::vector<unsigned int> vao_list;
 
 private:
     unsigned int vertex_shader_;
