@@ -12,6 +12,7 @@ int main(int argc, char *argv[])
     while (!prog->is_ready())
     {}
     unsigned int VAO = initobject();
+    init_textures();
     // initPOV();
     glBindVertexArray(VAO);
     glutMainLoop();

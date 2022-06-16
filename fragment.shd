@@ -1,10 +1,13 @@
 #version 450
 
 in vec3 color;
+in vec2 uv_frag;
+
+uniform sampler2D texture_sampler;
 
 layout(location=0) out vec4 output_color;
 
 void main() {
 
-    output_color = vec4(color, 1.0f);
+    output_color = vec4(color, 1.0f) * texture(texture_sampler, uv_frag);
 }

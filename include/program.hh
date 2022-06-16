@@ -6,6 +6,8 @@
 #include <iostream>
 #include <string>
 
+#include "image.hh"
+#include "image_io.hh"
 #include "matrix.hh"
 #include "utils.hh"
 
@@ -24,6 +26,8 @@ bool init_glew();
 bool initGL();
 
 unsigned int initobject();
+
+void init_textures();
 
 class Program
 {
