@@ -174,110 +174,11 @@ bool initGL()
     TEST_OPENGL_ERROR();
     glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
     TEST_OPENGL_ERROR();
-    // glEnable(GL_CULL_FACE);
+    glEnable(GL_CULL_FACE);
     TEST_OPENGL_ERROR();
     glClearColor(0.0, 0.0, 0.5, 1.0);
     TEST_OPENGL_ERROR();
     return true;
-}
-
-unsigned int initobject()
-{
-    std::vector<glm::vec3> vertices;
-    std::vector<glm::vec3> normals;
-    std::vector<glm::vec2> uv;
-    load_obj("amongus.obj", vertices, uv, normals);
-    std::cout << "size vert: " << sizeof(glm::vec3) * vertices.size()
-              << std::endl;
-    std::cout << "size norms: " << sizeof(glm::vec3) * normals.size()
-              << std::endl;
-    std::cout << "size uvs: " << sizeof(glm::vec2) * uv.size() << std::endl;
-    unsigned int verts;
-    unsigned int norms;
-    unsigned int uvs;
-    glGenBuffers(1, &verts);
-    glGenBuffers(1, &norms);
-    glGenBuffers(1, &uvs);
-    TEST_OPENGL_ERROR();
-    unsigned int VAO;
-    glGenVertexArrays(1, &VAO);
-    TEST_OPENGL_ERROR();
-    glBindVertexArray(VAO);
-    TEST_OPENGL_ERROR();
-    glBindBuffer(GL_ARRAY_BUFFER, verts);
-    TEST_OPENGL_ERROR();
-
-    glBufferData(GL_ARRAY_BUFFER, vertices.size() * sizeof(glm::vec3),
-                 &vertices[0], GL_STATIC_DRAW);
-    p->triangles_ = vertices.size();
-    TEST_OPENGL_ERROR();
-    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float),
-                          (void *)0);
-    TEST_OPENGL_ERROR();
-    glEnableVertexAttribArray(0);
-
-    glBindBuffer(GL_ARRAY_BUFFER, norms);
-    TEST_OPENGL_ERROR();
-    glBufferData(GL_ARRAY_BUFFER, normals.size() * sizeof(glm::vec3),
-                 &normals[0], GL_STATIC_DRAW);
-    glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float),
-                          (void *)0);
-    TEST_OPENGL_ERROR();
-    glEnableVertexAttribArray(1);
-
-    glBindBuffer(GL_ARRAY_BUFFER, uvs);
-    TEST_OPENGL_ERROR();
-    glBufferData(GL_ARRAY_BUFFER, uv.size() * sizeof(glm::vec2), &uv[0],
-                 GL_STATIC_DRAW);
-    TEST_OPENGL_ERROR();
-    glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, 2 * sizeof(float),
-                          (void *)0);
-    TEST_OPENGL_ERROR();
-    glEnableVertexAttribArray(2);
-
-    TEST_OPENGL_ERROR();
-    return VAO;
-}
-
-void init_textures()
-{
-    tifo::rgb24_image *texture = tifo::load_image("pierre.tga");
-    GLuint texture_id;
-    GLint tex_location;
-
-    std::cout << "texture " << texture->sx << " ," << texture->sy << "\n";
-
-    GLint texture_units, combined_texture_units;
-    glGetIntegerv(GL_MAX_TEXTURE_IMAGE_UNITS, &texture_units);
-    glGetIntegerv(GL_MAX_COMBINED_TEXTURE_IMAGE_UNITS, &combined_texture_units);
-    std::cout << "Limit 1 " << texture_units << " limit 2 "
-              << combined_texture_units << std::endl;
-
-    glGenTextures(1, &texture_id);
-    TEST_OPENGL_ERROR();
-    glActiveTexture(GL_TEXTURE0);
-    TEST_OPENGL_ERROR();
-    glBindTexture(GL_TEXTURE_2D, texture_id);
-    TEST_OPENGL_ERROR();
-    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, texture->sx, texture->sy, 0, GL_RGB,
-                 GL_UNSIGNED_BYTE, texture->pixels);
-    TEST_OPENGL_ERROR();
-    tex_location = glGetUniformLocation(p->shader_program_, "texture_sampler");
-    TEST_OPENGL_ERROR();
-    std::cout << "tex_location " << tex_location << std::endl;
-    glUniform1i(tex_location, 0);
-    TEST_OPENGL_ERROR();
-
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-    TEST_OPENGL_ERROR();
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-    TEST_OPENGL_ERROR();
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-    TEST_OPENGL_ERROR();
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-    TEST_OPENGL_ERROR();
-
-    delete texture;
 }
 
 Program::Program()
@@ -373,7 +274,8 @@ Program *Program::make_program(std::string &vertex_shader_src,
 
     glUseProgram(p->shader_program_);
 
-    glm::mat4 projection_matrix = frustum(-0.5, 0.5, -0.5, 0.5, 1.0, 100.0);
+    glm::mat4 projection_matrix =
+        glm::frustum(-0.5, 0.5, -0.5, 0.5, 1.0, 100.0);
     p->set_mat4_uniform("projection_matrix", projection_matrix);
     update_position();
 

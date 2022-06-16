@@ -8,7 +8,6 @@
 
 #include "image.hh"
 #include "image_io.hh"
-#include "matrix.hh"
 #include "utils.hh"
 
 void test_opengl_error(std::string func, std::string file, int line);
@@ -24,10 +23,6 @@ bool init_glut(int &argc, char *argv[]);
 bool init_glew();
 
 bool initGL();
-
-unsigned int initobject();
-
-void init_textures();
 
 class Program
 {

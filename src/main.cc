@@ -1,4 +1,4 @@
-#include "matrix.hh"
+#include "object.hh"
 #include "program.hh"
 
 int main(int argc, char *argv[])
@@ -11,9 +11,11 @@ int main(int argc, char *argv[])
     Program *prog = Program::make_program(vertex_src, fragment_src);
     while (!prog->is_ready())
     {}
-    unsigned int VAO = initobject();
-    init_textures();
-    // initPOV();
+    Object amogus("amongus.obj", "pierre.tga", glm::vec3(5, 5, 5));
+    unsigned int VAO = amogus.render(prog);
+    // unsigned int VAO = initobject();
+    // init_textures();
+    //  initPOV();
     glBindVertexArray(VAO);
     glutMainLoop();
     free(prog);
