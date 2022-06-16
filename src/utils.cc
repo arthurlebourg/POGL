@@ -49,7 +49,7 @@ void load_obj(const char *filename, std::vector<glm::vec3> &vertices,
             std::string s(line.substr(2));
             std::string vertex1, vertex2, vertex3;
             unsigned int vertexIndex[3], uvIndex[3], normalIndex[3];
-            int matches = sscanf(s.c_str(), "%d/%d/%d %d/%d/%d %d/%d/%d\n",
+            int matches = sscanf(s.c_str(), "%u/%u/%u %u/%u/%u %u/%u/%u\n",
                                  &vertexIndex[0], &uvIndex[0], &normalIndex[0],
                                  &vertexIndex[1], &uvIndex[1], &normalIndex[1],
                                  &vertexIndex[2], &uvIndex[2], &normalIndex[2]);

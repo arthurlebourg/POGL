@@ -1,100 +1,45 @@
-#************************************************
-#*                                              *
-#*             (c) 2019 J. FABRIZIO             *
-#*                                              *
-#*                               LRDE EPITA     *
-#*                                              *
-#************************************************
-
-CC = g++
-
-CPP_FILES = program.cc matrix.cc utils.cc
-CPP_FILES +=
-HXX_FILES =
-HXX_FILES +=
-OBJ_FILES = $(CPP_FILES:.cc=.o)
-
-CXX_FLAGS += -Wall -Wextra -O3 -g -std=c++17
-CXX_FLAGS +=
+CXX      := -c++
+CXXFLAGS := -pedantic-errors -Wall -Wextra -Werror -O3
 CXX_FLAGS += -m64 -march=native
 CXX_FLAGS += -fopt-info-vec-optimized #-fopt-info-vec-missed -ftree-vectorize
+LDFLAGS  := -L/usr/lib -lstdc++ -lm
 LDXX_FLAGS = -lGL  -lGLEW -lglut -lpthread
 
-MAIN_FILE = main.cc
-DIST = main
+OBJ_DIR  := ./build
+BIN_DIR  := ./bin
+TARGET   := portal
+INCLUDE  := -Iinclude/
+SRC      := $(wildcard src/*.cc)
 
-SKEL_DIST_DIR = pogl_skel_tp
-SKEL_FILES = $(CPP_FILES) $(HXX_FILES) $(MAIN_FILE) Makefile vertex.shd fragment.shd
+OBJECTS  := $(SRC:%.cc=$(OBJ_DIR)/%.o)
+DEPENDENCIES \
+         := $(OBJECTS:.o=.d)
 
+all: build $(BIN_DIR)/$(TARGET)
 
-#For gcc 4.9
-#CXXFLAGS+=-fdiagnostics-color=auto
-export GCC_COLORS=1
+$(OBJ_DIR)/%.o: %.cc
+	@mkdir -p $(@D)
+	$(CXX) $(CXXFLAGS) $(INCLUDE) -c $< -MMD -o $@
 
-define color
-    if test -n "${TERM}" ; then\
-	if test `tput colors` -gt 0 ; then \
-	    tput setaf $(1); \
-        fi;\
-    fi
-endef
+$(BIN_DIR)/$(TARGET): $(OBJECTS)
+	@mkdir -p $(@D)
+	$(CXX) $(CXXFLAGS) -o $(BIN_DIR)/$(TARGET) $(LDXX_FLAGS) $^ $(LDFLAGS)
 
-define default_color
-    if test -n "${TERM}" ; then\
-	if test `tput colors` -gt 0 ; then  tput sgr0 ; fi; \
-    fi
-endef
+-include $(DEPENDENCIES)
 
+.PHONY: all build clean debug release info
 
-all: post-build
+build:
+	@mkdir -p $(BIN_DIR)
+	@mkdir -p $(OBJ_DIR)
 
-pre-build:
-	@$(call color,4)
-	@echo "******** Starting Compilation ************"
-	@$(call default_color)
+debug: CXXFLAGS += -DDEBUG -g
+debug: all
 
-post-build:
-	@make --no-print-directory main-build ; \
-	sta=$$?;	  \
-	$(call color,4); \
-	echo "*********** End Compilation **************"; \
-	$(call default_color); \
-	exit $$sta;
-
-main-build: pre-build build
-
-build: $(OBJ_FILES)
-	$(CC) $(MAIN_FILE) -o $(DIST) $(OBJ_FILES) $(CXX_FLAGS) $(LDXX_FLAGS)
-
-
-%.o: %.cc %.hh
-	@$(call color,2)
-	@echo "[$@] $(CXX_FLAGS)"
-	@$(call default_color)
-	@$(CC) -c -o $@ $< $(CXX_FLAGS) ; \
-	sta=$$?;	  \
-	if [ $$sta -eq 0 ]; then  \
-	  $(call color,2) ; \
-	  echo "[$@ succes]" ; \
-	  $(call default_color) ; \
-	else  \
-	  $(call color,1) ; \
-	  echo "[$@ failure]" ; \
-	  $(call default_color) ; \
-	fi ;\
-	exit $$sta
-
-.PHONY: all clean pre-build post-build main-build build skel
+exe: all
+	./$(BIN_DIR)/$(TARGET)
+	@feh scene.ppm
 
 clean:
-	rm -f $(OBJ_FILES)
-	rm -f $(DIST)
-	rm -rf $(SKEL_DIST_DIR).tar.bz2
-
-
-skel:
-	rm -rf $(SKEL_DIST_DIR)
-	mkdir $(SKEL_DIST_DIR)
-	cp $(SKEL_FILES) $(SKEL_DIST_DIR)
-	tar -cjvf $(SKEL_DIST_DIR).tar.bz2 $(SKEL_DIST_DIR)
-	rm -rf $(SKEL_DIST_DIR)
+	-@rm -rvf $(OBJ_DIR)/*
+	-@rm -rvf $(BIN_DIR)/*

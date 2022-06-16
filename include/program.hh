@@ -1,7 +1,8 @@
 #pragma once
 
-#include <GL/freeglut.h>
 #include <GL/glew.h>
+
+#include <GL/freeglut.h>
 #include <iostream>
 #include <string>
 
