@@ -34,11 +34,12 @@ build:
 	@mkdir -p $(OBJ_DIR)
 
 debug: CXXFLAGS += -DDEBUG -g
+        TMP := $(CXXFLAGS)
+        CXXFLAGS = $(filter-out -O3,$(TMP))
 debug: all
 
 exe: all
 	./$(BIN_DIR)/$(TARGET)
-	@feh scene.ppm
 
 clean:
 	-@rm -rvf $(OBJ_DIR)/*

@@ -14,6 +14,8 @@ void load_obj(const char *filename, std::vector<glm::vec3> &vertices,
     std::vector<unsigned int> normalIndices;
 
     std::vector<glm::vec3> temp_vertices;
+    std::vector<glm::vec3> temp_normals;
+    std::vector<glm::vec2> temp_uv;
 
     std::string line("");
     while (getline(in, line))
@@ -33,7 +35,7 @@ void load_obj(const char *filename, std::vector<glm::vec3> &vertices,
             glm::vec2 v;
             s >> v.x;
             s >> v.y;
-            uv.push_back(v);
+            temp_uv.push_back(v);
         }
         else if (line.substr(0, 2) == "vt")
         {
@@ -42,7 +44,7 @@ void load_obj(const char *filename, std::vector<glm::vec3> &vertices,
             s >> v.x;
             s >> v.y;
             s >> v.z;
-            normals.push_back(v);
+            temp_normals.push_back(v);
         }
         else if (line.substr(0, 2) == "f ")
         {
@@ -77,5 +79,17 @@ void load_obj(const char *filename, std::vector<glm::vec3> &vertices,
         unsigned int vertexIndex = vertexIndices[i];
         glm::vec3 vertex = temp_vertices[vertexIndex - 1];
         vertices.push_back(vertex);
+    }
+    for (unsigned int i = 0; i < normalIndices.size(); i++)
+    {
+        unsigned int normalIndex = normalIndices[i];
+        glm::vec3 vertex = temp_normals[normalIndex - 1];
+        normals.push_back(vertex);
+    }
+    for (unsigned int i = 0; i < uvIndices.size(); i++)
+    {
+        unsigned int uvIndex = uvIndices[i];
+        glm::vec2 vertex = temp_uv[uvIndex - 1];
+        uv.push_back(vertex);
     }
 }
