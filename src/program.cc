@@ -59,7 +59,8 @@ void update_position()
     double p1 = distance * sin(angle_beta);
     double p2 = distance * sin(angle_alpha) * cos(angle_beta);
 
-    glm::mat4 model_view_matrix = lookat(p0, p1, p2, 0, 0, 0, 0, sky_up, 0);
+    glm::mat4 model_view_matrix = glm::lookAt(
+        glm::vec3(p0, p1, p2), glm::vec3(0, 0, 0), glm::vec3(0, sky_up, 0));
     p->set_mat4_uniform("model_view_matrix", model_view_matrix);
 
     // glm::mat4 projection_matrix = frustum(-0.05,0.05,-0.05,0.05,1.0,100.0);

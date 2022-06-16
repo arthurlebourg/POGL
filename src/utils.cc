@@ -37,7 +37,7 @@ void load_obj(const char *filename, std::vector<glm::vec3> &vertices,
             s >> v.y;
             temp_uv.push_back(v);
         }
-        else if (line.substr(0, 2) == "vt")
+        else if (line.substr(0, 2) == "vn")
         {
             std::istringstream s(line.substr(2));
             glm::vec3 v;
