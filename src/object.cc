@@ -9,10 +9,7 @@ Object::Object(std::string obj_file, std::string texture, glm::vec3 position)
     {
         vertices_[i] += position;
     }
-};
 
-unsigned int Object::render(Program *p)
-{
     unsigned int verts; // VBO
     unsigned int norms; // VBO
     unsigned int uvs; // VBO
@@ -20,17 +17,16 @@ unsigned int Object::render(Program *p)
     glGenBuffers(1, &norms);
     glGenBuffers(1, &uvs);
     TEST_OPENGL_ERROR();
-    unsigned int VAO;
-    glGenVertexArrays(1, &VAO);
+    glGenVertexArrays(1, &VAO_);
     TEST_OPENGL_ERROR();
-    glBindVertexArray(VAO);
+    glBindVertexArray(VAO_);
     TEST_OPENGL_ERROR();
     glBindBuffer(GL_ARRAY_BUFFER, verts);
     TEST_OPENGL_ERROR();
 
     glBufferData(GL_ARRAY_BUFFER, vertices_.size() * sizeof(glm::vec3),
                  &vertices_[0], GL_STATIC_DRAW);
-    p->triangles_ = vertices_.size();
+    triangles_number_ = vertices_.size();
     TEST_OPENGL_ERROR();
     glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float),
                           (void *)0);
@@ -57,7 +53,20 @@ unsigned int Object::render(Program *p)
     glEnableVertexAttribArray(2);
 
     TEST_OPENGL_ERROR();
+};
 
+unsigned int Object::get_VAO()
+{
+    return VAO_;
+}
+
+unsigned int Object::get_triangles_number()
+{
+    return triangles_number_;
+}
+
+void Object::bind_texture(unsigned int shader_program)
+{
     GLuint texture_id;
     GLint tex_location;
 
@@ -74,7 +83,7 @@ unsigned int Object::render(Program *p)
     glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, texture_->sx, texture_->sy, 0,
                  GL_RGB, GL_UNSIGNED_BYTE, texture_->pixels);
     TEST_OPENGL_ERROR();
-    tex_location = glGetUniformLocation(p->shader_program_, "texture_sampler");
+    tex_location = glGetUniformLocation(shader_program, "texture_sampler");
     TEST_OPENGL_ERROR();
     glUniform1i(tex_location, 0);
     TEST_OPENGL_ERROR();
@@ -87,6 +96,4 @@ unsigned int Object::render(Program *p)
     TEST_OPENGL_ERROR();
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
     TEST_OPENGL_ERROR();
-
-    return VAO;
 }

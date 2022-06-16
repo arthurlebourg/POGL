@@ -12,12 +12,9 @@ int main(int argc, char *argv[])
     while (!prog->is_ready())
     {}
     Object amogus("amongus.obj", "pierre.tga", glm::vec3(5, 5, 5));
-    Object amogus_center("amongus.obj", "pierre.tga", glm::vec3(0, 0, 0));
-    prog->vao_list.push_back(amogus.render(prog));
-    prog->vao_list.push_back(amogus_center.render(prog));
-    // unsigned int VAO = initobject();
-    // init_textures();
-    //  initPOV();
+    Object amogus_center("amongus.obj", "pierre_sang.tga", glm::vec3(0, 0, 0));
+    prog->obj_list.push_back(amogus);
+    prog->obj_list.push_back(amogus_center);
     glutMainLoop();
     free(prog);
 }

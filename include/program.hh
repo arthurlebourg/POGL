@@ -8,15 +8,8 @@
 
 #include "image.hh"
 #include "image_io.hh"
+#include "object.hh"
 #include "utils.hh"
-
-void test_opengl_error(std::string func, std::string file, int line);
-
-#define TEST_OPENGL_ERROR()                                                    \
-    do                                                                         \
-    {                                                                          \
-        test_opengl_error(__func__, __FILE__, __LINE__);                       \
-    } while (0)
 
 bool init_glut(int &argc, char *argv[]);
 
@@ -45,7 +38,7 @@ public:
 
     unsigned int shader_program_;
     unsigned int triangles_;
-    std::vector<unsigned int> vao_list;
+    std::vector<Object> obj_list;
 
 private:
     unsigned int vertex_shader_;

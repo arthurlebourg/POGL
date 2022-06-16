@@ -11,48 +11,6 @@ double sky_up = 1;
 int old_pos_x = 0;
 int old_pos_y = 0;
 
-void test_opengl_error(std::string func, std::string file, int line)
-{
-    GLenum err = glGetError();
-    switch (err)
-    {
-    case GL_NO_ERROR:
-        return;
-    case GL_INVALID_ENUM:
-        std::cerr << file << ":" << line << "(" << func << ") ";
-        std::cerr << "GL_INVALID_ENUM\n";
-        break;
-    case GL_INVALID_VALUE:
-        std::cerr << file << ":" << line << "(" << func << ") ";
-        std::cerr << "GL_INVALID_VALUE\n";
-        break;
-    case GL_INVALID_OPERATION:
-        std::cerr << file << ":" << line << "(" << func << ") ";
-        std::cerr << "GL_INVALID_OPERATION\n";
-        break;
-    case GL_INVALID_FRAMEBUFFER_OPERATION:
-        std::cerr << file << ":" << line << "(" << func << ") ";
-        std::cerr << "GL_INVALID_FRAMEBUFFER_OPERATION\n";
-        break;
-    case GL_OUT_OF_MEMORY:
-        std::cerr << file << ":" << line << "(" << func << ") ";
-        std::cerr << "GL_OUT_OF_MEMORY\n";
-        break;
-    case GL_STACK_UNDERFLOW:
-        std::cerr << file << ":" << line << "(" << func << ") ";
-        std::cerr << "GL_STACK_UNDERFLOW\n";
-        break;
-    case GL_STACK_OVERFLOW:
-        std::cerr << file << ":" << line << "(" << func << ") ";
-        std::cerr << "GL_STACK_OVERFLOW\n";
-        break;
-    default:
-        std::cerr << file << ":" << line << "(" << func << ") ";
-        std::cerr << "UNKONWN ERROR\n";
-        break;
-    }
-}
-
 void update_position()
 {
     double p0 = distance * cos(angle_alpha) * cos(angle_beta);
@@ -140,10 +98,11 @@ void display()
     TEST_OPENGL_ERROR();
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
     TEST_OPENGL_ERROR();
-    for (unsigned int VAO : p->vao_list)
+    for (Object obj : p->obj_list)
     {
-        glBindVertexArray(VAO);
-        glDrawArrays(GL_TRIANGLES, 0, p->triangles_);
+        glBindVertexArray(obj.get_VAO());
+        obj.bind_texture(p->shader_program_);
+        glDrawArrays(GL_TRIANGLES, 0, obj.get_triangles_number());
         TEST_OPENGL_ERROR();
     }
     glutSwapBuffers();

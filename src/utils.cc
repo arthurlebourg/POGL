@@ -1,5 +1,47 @@
 #include "utils.hh"
 
+void test_opengl_error(std::string func, std::string file, int line)
+{
+    GLenum err = glGetError();
+    switch (err)
+    {
+    case GL_NO_ERROR:
+        return;
+    case GL_INVALID_ENUM:
+        std::cerr << file << ":" << line << "(" << func << ") ";
+        std::cerr << "GL_INVALID_ENUM\n";
+        break;
+    case GL_INVALID_VALUE:
+        std::cerr << file << ":" << line << "(" << func << ") ";
+        std::cerr << "GL_INVALID_VALUE\n";
+        break;
+    case GL_INVALID_OPERATION:
+        std::cerr << file << ":" << line << "(" << func << ") ";
+        std::cerr << "GL_INVALID_OPERATION\n";
+        break;
+    case GL_INVALID_FRAMEBUFFER_OPERATION:
+        std::cerr << file << ":" << line << "(" << func << ") ";
+        std::cerr << "GL_INVALID_FRAMEBUFFER_OPERATION\n";
+        break;
+    case GL_OUT_OF_MEMORY:
+        std::cerr << file << ":" << line << "(" << func << ") ";
+        std::cerr << "GL_OUT_OF_MEMORY\n";
+        break;
+    case GL_STACK_UNDERFLOW:
+        std::cerr << file << ":" << line << "(" << func << ") ";
+        std::cerr << "GL_STACK_UNDERFLOW\n";
+        break;
+    case GL_STACK_OVERFLOW:
+        std::cerr << file << ":" << line << "(" << func << ") ";
+        std::cerr << "GL_STACK_OVERFLOW\n";
+        break;
+    default:
+        std::cerr << file << ":" << line << "(" << func << ") ";
+        std::cerr << "UNKONWN ERROR\n";
+        break;
+    }
+}
+
 void load_obj(const char *filename, std::vector<glm::vec3> &vertices,
               std::vector<glm::vec2> &uv, std::vector<glm::vec3> &normals)
 {
