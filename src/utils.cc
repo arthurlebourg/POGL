@@ -135,3 +135,21 @@ void load_obj(const char *filename, std::vector<glm::vec3> &vertices,
         uv.push_back(vertex);
     }
 }
+
+char *read_file(std::string file)
+{
+    std::ifstream t(file);
+    if (t.fail())
+    {
+        std::cout << "ERROR: no file: " << file << std::endl;
+        return new char[0];
+    }
+    int length;
+    t.seekg(0, std::ios::end);
+    length = t.tellg();
+    t.seekg(0, std::ios::beg);
+    char *buffer = new char[length];
+    t.read(buffer, length - 1);
+    t.close();
+    return buffer;
+}

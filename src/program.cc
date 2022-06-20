@@ -3,102 +3,131 @@
 #include <fstream>
 
 Program *p;
-double distance = 17;
-double angle_alpha = 0;
-double angle_beta = 0;
-double sky_up = 1;
+
+float yaw = -90.0f;
+float pitch = 0.0f;
 
 int old_pos_x = 0;
 int old_pos_y = 0;
+int win_w = 1024;
+int win_h = 1024;
+bool firstMouse = true;
+
+glm::vec3 position(0, 0, 3.0);
+glm::vec3 direction(0, 0, -1);
+glm::vec3 up(0, 1, 0);
+float camera_speed = 0.1f;
+
+float deltaTime = 0.0f; // Time between current frame and last frame
+float lastFrame = 0.0f; // Time of last frame
 
 void update_position()
 {
-    double p0 = distance * cos(angle_alpha) * cos(angle_beta);
-    double p1 = distance * sin(angle_beta);
-    double p2 = distance * sin(angle_alpha) * cos(angle_beta);
-
-    glm::mat4 model_view_matrix = glm::lookAt(
-        glm::vec3(p0, p1, p2), glm::vec3(0, 0, 0), glm::vec3(0, sky_up, 0));
+    glm::mat4 model_view_matrix =
+        glm::lookAt(position, position + direction, up);
     p->set_mat4_uniform("model_view_matrix", model_view_matrix);
 
-    // glm::mat4 projection_matrix = frustum(-0.05,0.05,-0.05,0.05,1.0,100.0);
-    // p->set_mat4_uniform("projection_matrix", projection_matrix);
+    glm::mat4 projection_matrix =
+        glm::frustum(-0.5, 0.5, -0.5, 0.5, 1.0, 100.0);
+    p->set_mat4_uniform("projection_matrix", projection_matrix);
 }
 
 void mouse_motion_callback(int x, int y)
 {
-    double alpha = angle_alpha - (old_pos_x - x) * M_PI / 50.0;
-    double beta = angle_beta - (old_pos_y - y) * M_PI / 50.0;
-    double sky;
-
-    if (beta > M_PI / 2.0)
-    {
-        beta = M_PI / 2.0;
-        sky = -1;
-    }
-    else if (beta < -M_PI / 2.0)
-    {
-        beta = -M_PI / 2.0;
-        sky = -1;
-    }
-    else
-        sky = 1;
-
-    if (alpha > M_PI)
-        alpha -= 2 * M_PI;
-    if (alpha < 0)
-        alpha += 2 * M_PI;
-
-    angle_alpha = alpha;
-    angle_beta = beta;
-    sky_up = sky;
-
-    old_pos_x = x;
-    old_pos_y = y;
-    //  std::cout << "motion" << std::endl;
-    update_position();
-    glutPostRedisplay();
-}
-
-void mouse_wheel_callback(int, int dir, int, int)
-{
-    if (dir < 0)
-    {
-        distance--;
-        if (distance < 5)
-            distance = 5;
-    }
-    else if (dir > 0)
-    {
-        distance++;
-        if (distance > 50)
-            distance = 50;
-    }
-    update_position();
-    glutPostRedisplay();
-}
-
-void mouse_callback(int button, int, int x, int y)
-{
-    if (button == GLUT_LEFT_BUTTON)
+    if (firstMouse)
     {
         old_pos_x = x;
         old_pos_y = y;
+        firstMouse = false;
     }
-    if (button == 3)
-        mouse_wheel_callback(button, -1, x, y);
-    else if (button == 4)
-        mouse_wheel_callback(button, 1, x, y);
+
+    float xoffset = x - old_pos_x;
+    float yoffset = old_pos_y - y;
+    old_pos_x = x;
+    old_pos_y = y;
+
+    float sensitivity = 0.1f;
+    xoffset *= sensitivity;
+    yoffset *= sensitivity;
+
+    yaw += xoffset;
+    pitch += yoffset;
+
+    if (pitch > 89.0f)
+        pitch = 89.0f;
+    if (pitch < -89.0f)
+        pitch = -89.0f;
+
+    direction.x = cos(glm::radians(yaw)) * cos(glm::radians(pitch));
+    direction.y = sin(glm::radians(pitch));
+    direction.z = sin(glm::radians(yaw)) * cos(glm::radians(pitch));
+    direction = glm::normalize(direction);
+
+    // this is the main thing that keeps it from leaving the screen
+    if (x < 100 || x > win_w - 100)
+    { // you can use values other than 100 for the screen edges if you like,
+      // kind of seems to depend on your mouse sensitivity for what ends up
+      // working best
+        old_pos_x =
+            win_w / 2; // centers the last known position, this way there isn't
+                       // an odd jump with your cam as it resets
+        old_pos_y = win_h / 2;
+        glutWarpPointer(win_w / 2, win_h / 2); // centers the cursor
+    }
+    else if (y < 100 || y > win_h - 100)
+    {
+        old_pos_x = win_w / 2;
+        old_pos_y = win_h / 2;
+        glutWarpPointer(win_w / 2, win_h / 2);
+    }
+
+    update_position();
+}
+
+void keyboard_callback(unsigned char key, int, int)
+{
+    if (key == 'z')
+    {
+        position += camera_speed * deltaTime * direction;
+    }
+    if (key == 's')
+    {
+        position -= camera_speed * deltaTime * direction;
+    }
+    if (key == 'q')
+    {
+        position -= camera_speed * deltaTime
+            * glm::normalize(glm::cross(direction, up));
+    }
+    if (key == 'd')
+    {
+        position += camera_speed * deltaTime
+            * glm::normalize(glm::cross(direction, up));
+    }
+
+    update_position();
+}
+
+void window_resize(int width, int height)
+{
+    glViewport(0, 0, width, height);
+    TEST_OPENGL_ERROR();
+    win_w = width;
+    win_h = height;
 }
 
 void display()
 {
+    float currentFrame = glutGet(GLUT_ELAPSED_TIME);
+    deltaTime = currentFrame - lastFrame;
+    lastFrame = currentFrame;
+
     TEST_OPENGL_ERROR();
     glUseProgram(p->shader_program_);
     TEST_OPENGL_ERROR();
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
     TEST_OPENGL_ERROR();
-    for (Object obj : p->obj_list)
+    for (Object obj : p->get_scene().get_objs())
     {
         glBindVertexArray(obj.get_VAO());
         obj.bind_texture(p->shader_program_);
@@ -106,6 +135,7 @@ void display()
         TEST_OPENGL_ERROR();
     }
     glutSwapBuffers();
+    glutPostRedisplay();
 }
 
 bool init_glut(int &argc, char *argv[])
@@ -119,8 +149,10 @@ bool init_glut(int &argc, char *argv[])
     glutInitWindowPosition(10, 10);
     glutCreateWindow("TP2 -- Arthur Le Bourg");
     glutDisplayFunc(display);
-    glutMouseFunc(mouse_callback);
-    glutMotionFunc(mouse_motion_callback);
+    glutReshapeFunc(window_resize);
+    glutPassiveMotionFunc(mouse_motion_callback);
+    glutKeyboardFunc(keyboard_callback);
+    glutSetCursor(GLUT_CURSOR_NONE);
     TEST_OPENGL_ERROR();
 
     return true;
@@ -144,7 +176,9 @@ bool initGL()
     return true;
 }
 
-Program::Program()
+Program::Program(Scene scene)
+    : scene_(scene)
+    , ready_(false)
 {
     vertex_shader_ = glCreateShader(GL_VERTEX_SHADER);
     TEST_OPENGL_ERROR();
@@ -152,7 +186,6 @@ Program::Program()
     TEST_OPENGL_ERROR();
     shader_program_ = glCreateProgram();
     TEST_OPENGL_ERROR();
-    ready_ = false;
 }
 
 Program::~Program()
@@ -163,28 +196,10 @@ Program::~Program()
     TEST_OPENGL_ERROR();
 }
 
-char *read_file(std::string file)
-{
-    std::ifstream t(file);
-    if (t.fail())
-    {
-        std::cout << "ERROR: no file: " << file << std::endl;
-        return new char[0];
-    }
-    int length;
-    t.seekg(0, std::ios::end);
-    length = t.tellg();
-    t.seekg(0, std::ios::beg);
-    char *buffer = new char[length];
-    t.read(buffer, length - 1);
-    t.close();
-    return buffer;
-}
-
 Program *Program::make_program(std::string &vertex_shader_src,
-                               std::string &fragment_shader_src)
+                               std::string &fragment_shader_src, Scene scene)
 {
-    p = new Program();
+    p = new Program(scene);
     int success;
     char *vertex_shader_content = read_file(vertex_shader_src);
     char *fragment_shader_content = read_file(fragment_shader_src);
@@ -237,13 +252,9 @@ Program *Program::make_program(std::string &vertex_shader_src,
 
     glUseProgram(p->shader_program_);
 
-    glm::mat4 projection_matrix =
-        glm::frustum(-0.5, 0.5, -0.5, 0.5, 1.0, 100.0);
-    p->set_mat4_uniform("projection_matrix", projection_matrix);
     update_position();
 
-    glm::vec3 light_pos(-10.0, -10.0, -10.0);
-    p->set_vec3_uniform("light_pos", light_pos);
+    p->set_vec3_uniform("light_pos", scene.get_light());
 
     p->ready_ = true;
     TEST_OPENGL_ERROR();
@@ -280,4 +291,9 @@ void Program::set_vec3_uniform(const char *name, glm::vec3 vec)
     TEST_OPENGL_ERROR();
     glUniform3fv(location, 1, glm::value_ptr(vec));
     TEST_OPENGL_ERROR();
+}
+
+Scene Program::get_scene()
+{
+    return scene_;
 }

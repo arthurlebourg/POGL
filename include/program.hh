@@ -8,7 +8,7 @@
 
 #include "image.hh"
 #include "image_io.hh"
-#include "object.hh"
+#include "scene.hh"
 #include "utils.hh"
 
 bool init_glut(int &argc, char *argv[]);
@@ -20,12 +20,12 @@ bool initGL();
 class Program
 {
 public:
-    Program();
+    Program(Scene scene);
 
     ~Program();
 
     static Program *make_program(std::string &vertex_shader_src,
-                                 std::string &fragment_shader_src);
+                                 std::string &fragment_shader_src, Scene scene);
 
     char *get_log();
 
@@ -38,9 +38,11 @@ public:
 
     unsigned int shader_program_;
     unsigned int triangles_;
-    std::vector<Object> obj_list;
+
+    Scene get_scene();
 
 private:
+    Scene scene_;
     unsigned int vertex_shader_;
     unsigned int fragment_shader_;
 

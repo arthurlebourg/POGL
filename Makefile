@@ -39,7 +39,7 @@ debug: CXXFLAGS += -DDEBUG -g
 debug: all
 
 exe: all
-	./$(BIN_DIR)/$(TARGET)
+	$(BIN_DIR)/$(TARGET)
 
 clean:
 	-@rm -rvf $(OBJ_DIR)/*
