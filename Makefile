@@ -1,8 +1,8 @@
 CXX      := -c++
-CXXFLAGS := -pedantic-errors -Wall -Wextra -Werror -O3
-CXX_FLAGS += -m64 -march=native
-CXX_FLAGS += -fopt-info-vec-optimized #-fopt-info-vec-missed -ftree-vectorize
-LDFLAGS  := -L/usr/lib -lstdc++ -lm
+CXXFLAGS := -pedantic-errors -Wall -Wextra -Werror -O3 $(shell pkg-config --cflags bullet)
+CXXFLAGS += -m64 -march=native
+CXXFLAGS += -fopt-info-vec-optimized #-fopt-info-vec-missed -ftree-vectorize
+LDFLAGS  := -L/usr/lib -lstdc++ -lm $(shell pkg-config --libs bullet)
 LDXX_FLAGS = -lGL  -lGLEW -lglut -lpthread
 
 OBJ_DIR  := ./build
@@ -29,14 +29,13 @@ $(BIN_DIR)/$(TARGET): $(OBJECTS)
 
 .PHONY: all build clean debug release info
 
+debug: CXXFLAGS:= $(filter-out -O3,$(CXXFLAGS)) -DDEBUG -g
+debug: all
+
 build:
 	@mkdir -p $(BIN_DIR)
 	@mkdir -p $(OBJ_DIR)
 
-debug: CXXFLAGS += -DDEBUG -g
-        TMP := $(CXXFLAGS)
-        CXXFLAGS = $(filter-out -O3,$(TMP))
-debug: all
 
 exe: all
 	$(BIN_DIR)/$(TARGET)

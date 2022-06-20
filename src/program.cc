@@ -46,9 +46,9 @@ void mouse_motion_callback(int x, int y)
     old_pos_x = x;
     old_pos_y = y;
 
-    float sensitivity = 0.1f;
-    xoffset *= sensitivity;
-    yoffset *= sensitivity;
+    float sensitivity = 0.05f;
+    xoffset *= deltaTime * sensitivity;
+    yoffset *= deltaTime * sensitivity;
 
     yaw += xoffset;
     pitch += yoffset;

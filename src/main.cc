@@ -1,3 +1,5 @@
+#include <btBulletDynamicsCommon.h>
+
 #include "program.hh"
 #include "scene.hh"
 
