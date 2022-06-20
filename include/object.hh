@@ -1,5 +1,6 @@
 #pragma once
 
+#include <btBulletDynamicsCommon.h>
 #include <string>
 
 #include "image.hh"
@@ -17,8 +18,15 @@ public:
 
     unsigned int get_triangles_number();
 
+    btRigidBody *get_body();
+
+    glm::mat4 move(glm::vec3 pos);
+
+    glm::mat4 get_transform();
+
 private:
     glm::vec3 position_;
+    glm::mat4 transform_;
     unsigned int VAO_;
     unsigned int triangles_number_;
 
@@ -28,4 +36,6 @@ private:
     tifo::rgb24_image *texture_;
 
     std::vector<Object> children_;
+    btCollisionShape *colShape_;
+    btRigidBody *body_;
 };

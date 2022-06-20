@@ -13,8 +13,12 @@ public:
 
     glm::vec3 get_light();
 
+    btDiscreteDynamicsWorld *get_dynamic_world();
+
 private:
     glm::vec3 light_;
 
     std::vector<Object> objects_;
+
+    btDiscreteDynamicsWorld *dynamicsWorld_;
 };

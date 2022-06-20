@@ -2,13 +2,10 @@
 
 Object::Object(std::string obj_file, std::string texture, glm::vec3 position)
     : position_(position)
+    , transform_(glm::mat4(1.0f))
     , texture_(tifo::load_image(texture.c_str()))
 {
     load_obj(obj_file.c_str(), vertices_, uv_, normals_);
-    for (size_t i = 0; i < vertices_.size(); i++)
-    {
-        vertices_[i] += position;
-    }
 
     unsigned int verts; // VBO
     unsigned int norms; // VBO
@@ -53,6 +50,35 @@ Object::Object(std::string obj_file, std::string texture, glm::vec3 position)
     glEnableVertexAttribArray(2);
 
     TEST_OPENGL_ERROR();
+
+    // create a dynamic rigidbody
+
+    colShape_ = new btBoxShape(btVector3(1, 1, 1));
+    // btCollisionShape* colShape = new btSphereShape(btScalar(1.));
+
+    /// Create Dynamic Objects
+    btTransform startTransform;
+    startTransform.setIdentity();
+
+    btScalar mass(1.f);
+
+    // rigidbody is dynamic if and only if mass is non zero, otherwise static
+    bool isDynamic = (mass != 0.f);
+
+    btVector3 localInertia(0, 0, 0);
+    if (isDynamic)
+        colShape_->calculateLocalInertia(mass, localInertia);
+
+    move(position);
+    startTransform.setOrigin(btVector3(position.x, position.y, position.z));
+
+    // using motionstate is recommended, it provides interpolation capabilities,
+    // and only synchronizes 'active' objects
+    btDefaultMotionState *myMotionState =
+        new btDefaultMotionState(startTransform);
+    btRigidBody::btRigidBodyConstructionInfo rbInfo(mass, myMotionState,
+                                                    colShape_, localInertia);
+    body_ = new btRigidBody(rbInfo);
 };
 
 unsigned int Object::get_VAO()
@@ -96,4 +122,20 @@ void Object::bind_texture(unsigned int shader_program)
     TEST_OPENGL_ERROR();
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
     TEST_OPENGL_ERROR();
+}
+
+btRigidBody *Object::get_body()
+{
+    return body_;
+}
+
+glm::mat4 Object::move(glm::vec3 pos)
+{
+    transform_ = glm::translate(transform_, pos);
+    return transform_;
+}
+
+glm::mat4 Object::get_transform()
+{
+    return transform_;
 }

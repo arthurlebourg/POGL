@@ -28,7 +28,7 @@ void update_position()
     p->set_mat4_uniform("model_view_matrix", model_view_matrix);
 
     glm::mat4 projection_matrix =
-        glm::frustum(-0.5, 0.5, -0.5, 0.5, 1.0, 100.0);
+        glm::frustum(-0.5, 0.5, -0.5, 0.5, 1.0, 500.0);
     p->set_mat4_uniform("projection_matrix", projection_matrix);
 }
 
@@ -127,10 +127,27 @@ void display()
     TEST_OPENGL_ERROR();
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
     TEST_OPENGL_ERROR();
+    p->get_scene().get_dynamic_world()->stepSimulation(deltaTime * 0.1f / 60.f,
+                                                       10);
     for (Object obj : p->get_scene().get_objs())
     {
         glBindVertexArray(obj.get_VAO());
         obj.bind_texture(p->shader_program_);
+
+        btRigidBody *body = obj.get_body();
+        btTransform trans;
+        trans.setIdentity();
+        if (body && body->getMotionState())
+        {
+            body->getMotionState()->getWorldTransform(trans);
+        }
+        else
+        {
+            // trans = obj->getWorldTransform();
+        }
+        glm::vec3 newpos(trans.getOrigin().getX(), trans.getOrigin().getY(),
+                         trans.getOrigin().getZ());
+        p->set_mat4_uniform("transform", obj.move(newpos));
         glDrawArrays(GL_TRIANGLES, 0, obj.get_triangles_number());
         TEST_OPENGL_ERROR();
     }
