@@ -43,7 +43,8 @@ namespace tifo
         sy = _sy;
 
         length = sx * sy * 3;
-        pixels = (RGB8)aligned_alloc(TL_IMAGE_ALIGNMENT, length);
+        // pixels = (RGB8)aligned_alloc(TL_IMAGE_ALIGNMENT, length);
+        pixels = (RGB8)calloc(TL_IMAGE_ALIGNMENT, length);
     }
 
     rgb24_image::~rgb24_image()

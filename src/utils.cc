@@ -148,8 +148,9 @@ char *read_file(std::string file)
     t.seekg(0, std::ios::end);
     length = t.tellg();
     t.seekg(0, std::ios::beg);
-    char *buffer = new char[length];
+    char *buffer = new char[length + 1];
     t.read(buffer, length - 1);
+    buffer[length] = '\0';
     t.close();
     return buffer;
 }

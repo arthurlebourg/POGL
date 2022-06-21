@@ -10,7 +10,8 @@
 class Object
 {
 public:
-    Object(std::string obj_file, std::string texture, glm::vec3 position);
+    Object(std::string obj_file, std::string texture, glm::vec3 position,
+           float obj_mass);
 
     void bind_texture(unsigned int shader_program);
 
@@ -27,8 +28,10 @@ public:
 private:
     glm::vec3 position_;
     glm::mat4 transform_;
+    float mass_;
     unsigned int VAO_;
     unsigned int triangles_number_;
+    unsigned int texture_id_;
 
     std::vector<glm::vec3> vertices_;
     std::vector<glm::vec3> normals_;

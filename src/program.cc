@@ -128,7 +128,7 @@ void display()
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
     TEST_OPENGL_ERROR();
     p->get_scene().get_dynamic_world()->stepSimulation(deltaTime * 0.1f / 60.f,
-                                                       10);
+                                                       1);
     for (Object obj : p->get_scene().get_objs())
     {
         glBindVertexArray(obj.get_VAO());
@@ -137,14 +137,7 @@ void display()
         btRigidBody *body = obj.get_body();
         btTransform trans;
         trans.setIdentity();
-        if (body && body->getMotionState())
-        {
-            body->getMotionState()->getWorldTransform(trans);
-        }
-        else
-        {
-            // trans = obj->getWorldTransform();
-        }
+        body->getMotionState()->getWorldTransform(trans);
         glm::vec3 newpos(trans.getOrigin().getX(), trans.getOrigin().getY(),
                          trans.getOrigin().getZ());
         p->set_mat4_uniform("transform", obj.move(newpos));
@@ -225,7 +218,7 @@ Program *Program::make_program(std::string &vertex_shader_src,
     TEST_OPENGL_ERROR();
     glCompileShader(p->vertex_shader_);
     TEST_OPENGL_ERROR();
-    free(vertex_shader_content);
+    delete[] vertex_shader_content;
 
     glGetShaderiv(p->vertex_shader_, GL_COMPILE_STATUS, &success);
 
@@ -240,7 +233,7 @@ Program *Program::make_program(std::string &vertex_shader_src,
     TEST_OPENGL_ERROR();
     glCompileShader(p->fragment_shader_);
     TEST_OPENGL_ERROR();
-    free(fragment_shader_content);
+    delete[] fragment_shader_content;
 
     glGetShaderiv(p->fragment_shader_, GL_COMPILE_STATUS, &success);
 

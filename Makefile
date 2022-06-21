@@ -1,7 +1,7 @@
-CXX      := -c++
+CXX      := -gcc
 CXXFLAGS := -pedantic-errors -Wall -Wextra -Werror -O3 $(shell pkg-config --cflags bullet)
-CXXFLAGS += -m64 -march=native
-CXXFLAGS += -fopt-info-vec-optimized #-fopt-info-vec-missed -ftree-vectorize
+#CXXFLAGS += -m64 -march=native
+#CXXFLAGS += -fopt-info-vec-optimized #-fopt-info-vec-missed -ftree-vectorize
 LDFLAGS  := -L/usr/lib -lstdc++ -lm $(shell pkg-config --libs bullet)
 LDXX_FLAGS = -lGL  -lGLEW -lglut -lpthread
 
@@ -29,7 +29,7 @@ $(BIN_DIR)/$(TARGET): $(OBJECTS)
 
 .PHONY: all build clean debug release info
 
-debug: CXXFLAGS:= $(filter-out -O3,$(CXXFLAGS)) -DDEBUG -g
+debug: CXXFLAGS:= $(filter-out -O3,$(CXXFLAGS)) -DDEBUG -g -fsanitize=address
 debug: all
 
 build:

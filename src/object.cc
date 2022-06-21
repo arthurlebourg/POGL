@@ -1,11 +1,46 @@
 #include "object.hh"
 
-Object::Object(std::string obj_file, std::string texture, glm::vec3 position)
+Object::Object(std::string obj_file, std::string texture, glm::vec3 position,
+               float obj_mass)
     : position_(position)
     , transform_(glm::mat4(1.0f))
+    , mass_(obj_mass)
     , texture_(tifo::load_image(texture.c_str()))
 {
     load_obj(obj_file.c_str(), vertices_, uv_, normals_);
+    float min_x = 0;
+    float max_x = 0;
+    float min_y = 0;
+    float max_y = 0;
+    float min_z = 0;
+    float max_z = 0;
+    for (auto i : vertices_)
+    {
+        if (i.x < min_x)
+        {
+            min_x = i.x;
+        }
+        else if (i.x > max_x)
+        {
+            max_x = i.x;
+        }
+        if (i.y < min_y)
+        {
+            min_y = i.y;
+        }
+        else if (i.y > max_y)
+        {
+            max_y = i.y;
+        }
+        if (i.z < min_z)
+        {
+            min_z = i.z;
+        }
+        else if (i.z > max_z)
+        {
+            max_z = i.z;
+        }
+    }
 
     unsigned int verts; // VBO
     unsigned int norms; // VBO
@@ -53,14 +88,21 @@ Object::Object(std::string obj_file, std::string texture, glm::vec3 position)
 
     // create a dynamic rigidbody
 
-    colShape_ = new btBoxShape(btVector3(1, 1, 1));
-    // btCollisionShape* colShape = new btSphereShape(btScalar(1.));
+    std::cout << "x : " << max_x << " " << min_x << std::endl;
+    std::cout << "size: " << max_x - min_x << std::endl;
+    std::cout << "y : " << max_y << " " << min_y << std::endl;
+    std::cout << "size: " << max_y - min_y << std::endl;
+    std::cout << "z : " << max_z << " " << min_z << std::endl;
+    std::cout << "size: " << max_z - min_z << std::endl;
+    colShape_ =
+        new btBoxShape(btVector3(max_x - min_x, max_y - min_y, max_x - min_z));
+    // colShape_ = new btSphereShape(btScalar(1.));
 
     /// Create Dynamic Objects
     btTransform startTransform;
     startTransform.setIdentity();
 
-    btScalar mass(1.f);
+    btScalar mass(obj_mass);
 
     // rigidbody is dynamic if and only if mass is non zero, otherwise static
     bool isDynamic = (mass != 0.f);
@@ -79,6 +121,30 @@ Object::Object(std::string obj_file, std::string texture, glm::vec3 position)
     btRigidBody::btRigidBodyConstructionInfo rbInfo(mass, myMotionState,
                                                     colShape_, localInertia);
     body_ = new btRigidBody(rbInfo);
+
+    GLint texture_units, combined_texture_units;
+    glGetIntegerv(GL_MAX_TEXTURE_IMAGE_UNITS, &texture_units);
+    glGetIntegerv(GL_MAX_COMBINED_TEXTURE_IMAGE_UNITS, &combined_texture_units);
+
+    glGenTextures(1, &texture_id_);
+    TEST_OPENGL_ERROR();
+    glActiveTexture(GL_TEXTURE0);
+    TEST_OPENGL_ERROR();
+    glBindTexture(GL_TEXTURE_2D, texture_id_);
+    TEST_OPENGL_ERROR();
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, texture_->sx, texture_->sy, 0,
+                 GL_RGB, GL_UNSIGNED_BYTE, texture_->pixels);
+    TEST_OPENGL_ERROR();
+    TEST_OPENGL_ERROR();
+
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+    TEST_OPENGL_ERROR();
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+    TEST_OPENGL_ERROR();
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+    TEST_OPENGL_ERROR();
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+    TEST_OPENGL_ERROR();
 };
 
 unsigned int Object::get_VAO()
@@ -93,34 +159,10 @@ unsigned int Object::get_triangles_number()
 
 void Object::bind_texture(unsigned int shader_program)
 {
-    GLuint texture_id;
-    GLint tex_location;
-
-    GLint texture_units, combined_texture_units;
-    glGetIntegerv(GL_MAX_TEXTURE_IMAGE_UNITS, &texture_units);
-    glGetIntegerv(GL_MAX_COMBINED_TEXTURE_IMAGE_UNITS, &combined_texture_units);
-
-    glGenTextures(1, &texture_id);
-    TEST_OPENGL_ERROR();
-    glActiveTexture(GL_TEXTURE0);
-    TEST_OPENGL_ERROR();
-    glBindTexture(GL_TEXTURE_2D, texture_id);
-    TEST_OPENGL_ERROR();
-    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, texture_->sx, texture_->sy, 0,
-                 GL_RGB, GL_UNSIGNED_BYTE, texture_->pixels);
-    TEST_OPENGL_ERROR();
-    tex_location = glGetUniformLocation(shader_program, "texture_sampler");
-    TEST_OPENGL_ERROR();
+    glBindTexture(GL_TEXTURE_2D, texture_id_);
+    unsigned tex_location =
+        glGetUniformLocation(shader_program, "texture_sampler");
     glUniform1i(tex_location, 0);
-    TEST_OPENGL_ERROR();
-
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-    TEST_OPENGL_ERROR();
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-    TEST_OPENGL_ERROR();
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-    TEST_OPENGL_ERROR();
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
     TEST_OPENGL_ERROR();
 }
 
