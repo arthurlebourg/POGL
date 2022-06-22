@@ -223,14 +223,23 @@ Program *Program::make_program(std::string &vertex_shader_src,
 {
     p = new Program(scene);
     int success;
-    char *vertex_shader_content = read_file(vertex_shader_src);
-    char *fragment_shader_content = read_file(fragment_shader_src);
+    std::string vertex_shader_content = read_file(vertex_shader_src);
+    std::string fragment_shader_content = read_file(fragment_shader_src);
+    char *vertex_shd_src =
+        (char *)std::malloc(vertex_shader_content.length() * sizeof(char));
+    char *fragment_shd_src =
+        (char *)std::malloc(fragment_shader_content.length() * sizeof(char));
 
-    glShaderSource(p->vertex_shader_, 1, &vertex_shader_content, NULL);
+    vertex_shader_content.copy(vertex_shd_src, vertex_shader_content.length());
+    fragment_shader_content.copy(fragment_shd_src,
+                                 fragment_shader_content.length());
+
+    glShaderSource(p->vertex_shader_, 1, (const GLchar **)&(vertex_shd_src),
+                   NULL);
     TEST_OPENGL_ERROR();
     glCompileShader(p->vertex_shader_);
     TEST_OPENGL_ERROR();
-    delete[] vertex_shader_content;
+    free(vertex_shd_src);
 
     glGetShaderiv(p->vertex_shader_, GL_COMPILE_STATUS, &success);
 
@@ -241,11 +250,12 @@ Program *Program::make_program(std::string &vertex_shader_src,
                   << p->log << std::endl;
     }
 
-    glShaderSource(p->fragment_shader_, 1, &fragment_shader_content, NULL);
+    glShaderSource(p->fragment_shader_, 1, (const GLchar **)&(fragment_shd_src),
+                   NULL);
     TEST_OPENGL_ERROR();
     glCompileShader(p->fragment_shader_);
     TEST_OPENGL_ERROR();
-    delete[] fragment_shader_content;
+    free(fragment_shd_src);
 
     glGetShaderiv(p->fragment_shader_, GL_COMPILE_STATUS, &success);
 

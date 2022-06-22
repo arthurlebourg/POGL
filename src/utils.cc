@@ -136,21 +136,21 @@ void load_obj(const char *filename, std::vector<glm::vec3> &vertices,
     }
 }
 
-char *read_file(std::string file)
+std::string read_file(const std::string &filename)
 {
-    std::ifstream t(file);
-    if (t.fail())
+    std::ifstream input_src_file(filename, std::ios::in);
+    std::string ligne;
+    std::string file_content = "";
+    if (input_src_file.fail())
     {
-        std::cout << "ERROR: no file: " << file << std::endl;
-        return new char[0];
+        std::cerr << "FAIL\n";
+        return "";
     }
-    int length;
-    t.seekg(0, std::ios::end);
-    length = t.tellg();
-    t.seekg(0, std::ios::beg);
-    char *buffer = new char[length + 1];
-    t.read(buffer, length - 1);
-    buffer[length] = '\0';
-    t.close();
-    return buffer;
+    while (getline(input_src_file, ligne))
+    {
+        file_content = file_content + ligne + "\n";
+    }
+    file_content += '\0';
+    input_src_file.close();
+    return file_content;
 }
