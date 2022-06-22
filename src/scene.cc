@@ -34,6 +34,11 @@ void Scene::add_object(Object obj)
     dynamicsWorld_->addRigidBody(obj.get_body());
 }
 
+void Scene::add_player(Player *player)
+{
+    dynamicsWorld_->addRigidBody(player->get_body());
+}
+
 std::vector<Object> Scene::get_objs()
 {
     return objects_;

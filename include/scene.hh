@@ -1,6 +1,7 @@
 #pragma once
 
 #include "object.hh"
+#include "player.hh"
 
 class Scene
 {
@@ -8,6 +9,8 @@ public:
     Scene(glm::vec3 light);
 
     void add_object(Object obj);
+
+    void add_player(Player *player);
 
     std::vector<Object> get_objs();
 

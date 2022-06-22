@@ -9,6 +9,7 @@ int old_pos_y = 0;
 int win_w = 1024;
 int win_h = 1024;
 bool firstMouse = true;
+bool key_states[256];
 
 float deltaTime = 0.0f; // Time between current frame and last frame
 float lastFrame = 0.0f; // Time of last frame
@@ -61,38 +62,21 @@ void mouse_motion_callback(int x, int y)
         old_pos_y = win_h / 2;
         glutWarpPointer(win_w / 2, win_h / 2);
     }
-
-    p->update_position();
 }
 
-void keyboard_callback(unsigned char key, int, int)
+void keyboard_keyup(unsigned char key, int, int)
 {
-    /*if (key == 'z')
+    key_states[key] = false;
+}
+void keyboard_keydown(unsigned char key, int, int)
+{
+    if (key == ' ')
     {
-        position += camera_speed * deltaTime * direction;
-    }
-    if (key == 's')
-    {
-        position -= camera_speed * deltaTime * direction;
-    }
-    if (key == 'q')
-    {
-        position -= camera_speed * deltaTime
-            * glm::normalize(glm::cross(direction, up));
-    }
-    if (key == 'd')
-    {
-        position += camera_speed * deltaTime
-            * glm::normalize(glm::cross(direction, up));
-    }
-    */
-    if (key == 'a')
-    {
-        p->get_scene()->get_objs()[1].get_body()->applyCentralImpulse(
+        p->get_player()->get_body()->activate();
+        p->get_player()->get_body()->applyCentralImpulse(
             btVector3(0.f, 5.f, 0.f));
     }
-
-    p->update_position();
+    key_states[key] = true;
 }
 
 void window_resize(int width, int height)
@@ -114,25 +98,35 @@ void display()
     TEST_OPENGL_ERROR();
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
     TEST_OPENGL_ERROR();
+
     p->get_scene()->get_dynamic_world()->stepSimulation(deltaTime * 0.1f / 60.f,
                                                         1);
+    btTransform trans;
+    trans.setIdentity();
     for (Object obj : p->get_scene()->get_objs())
     {
         glBindVertexArray(obj.get_VAO());
         obj.bind_texture(p->shader_program_);
+        trans.setIdentity();
 
         btRigidBody *body = obj.get_body();
-        btTransform trans;
-        trans.setIdentity();
         body->getMotionState()->getWorldTransform(trans);
         glm::vec3 newpos(trans.getOrigin().getX(), trans.getOrigin().getY(),
                          trans.getOrigin().getZ());
         p->set_mat4_uniform("transform", obj.move(newpos));
-        // std::cout << obj.get_position().x << " " << obj.get_position().y << "
-        // " << obj.get_position().z << std::endl;
         glDrawArrays(GL_TRIANGLES, 0, obj.get_triangles_number());
         TEST_OPENGL_ERROR();
     }
+    trans.setIdentity();
+    btRigidBody *player_body = p->get_player()->get_body();
+    player_body->getMotionState()->getWorldTransform(trans);
+    p->get_player()->set_position(trans.getOrigin().getX(),
+                                  trans.getOrigin().getY(),
+                                  trans.getOrigin().getZ());
+
+    p->update_position();
+    p->get_player()->move(key_states['z'] - key_states['s'],
+                          key_states['d'] - key_states['q'], deltaTime);
 
     // std::cout << "camera: " << position.x << " " << position.y << " " <<
     // position.z << std::endl;
@@ -155,7 +149,9 @@ bool init_glut(int &argc, char *argv[])
     glutDisplayFunc(display);
     glutReshapeFunc(window_resize);
     glutPassiveMotionFunc(mouse_motion_callback);
-    glutKeyboardFunc(keyboard_callback);
+    glutIgnoreKeyRepeat(1);
+    glutKeyboardFunc(keyboard_keydown);
+    glutKeyboardUpFunc(keyboard_keyup);
     glutSetCursor(GLUT_CURSOR_NONE);
     TEST_OPENGL_ERROR();
 

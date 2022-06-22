@@ -1,5 +1,7 @@
 #pragma once
 
+#include <btBulletDynamicsCommon.h>
+
 #include "utils.hh"
 
 class Player
@@ -22,6 +24,10 @@ public:
 
     glm::vec3 get_up();
 
+    btRigidBody *get_body();
+
+    void move(int forward, int sideward, float deltaTime);
+
 private:
     float yaw_;
     float pitch_;
@@ -30,4 +36,7 @@ private:
     glm::vec3 up_;
 
     float speed_;
+
+    btCollisionShape *colShape_;
+    btRigidBody *body_;
 };

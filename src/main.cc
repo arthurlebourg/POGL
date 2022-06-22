@@ -15,6 +15,7 @@ int main(int argc, char *argv[])
     Player *player = new Player(glm::vec3(0, 0, 3.0), glm::vec3(0, 0, -1));
 
     Scene *scene = new Scene(glm::vec3(-10.0, -10.0, -10.0));
+    scene->add_player(player);
     scene->add_object(plane);
     scene->add_object(amogus);
     scene->add_object(amogus_center);

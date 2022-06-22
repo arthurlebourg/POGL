@@ -55,9 +55,6 @@ Object::Object(std::string obj_file, std::string texture, glm::vec3 position,
 
     // create a dynamic rigidbody
 
-    // colShape_ =
-    //     new btBoxShape(btVector3(1.0, 1.0, 1.0));
-
     btConvexHullShape *shape = new btConvexHullShape();
     for (auto i : vertices_)
     {
@@ -65,7 +62,6 @@ Object::Object(std::string obj_file, std::string texture, glm::vec3 position,
     }
     shape->optimizeConvexHull();
     colShape_ = shape;
-    // colShape_ = new btSphereShape(btScalar(1.));
 
     /// Create Dynamic Objects
     btTransform startTransform;
