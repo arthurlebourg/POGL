@@ -14,7 +14,7 @@ int win_h = 1024;
 bool firstMouse = true;
 
 glm::vec3 position(0, 0, 3.0);
-glm::vec3 direction(0, 0, -1);
+glm::vec3 direction(0, 1, 0);
 glm::vec3 up(0, 1, 0);
 float camera_speed = 0.1f;
 
@@ -104,6 +104,11 @@ void keyboard_callback(unsigned char key, int, int)
         position += camera_speed * deltaTime
             * glm::normalize(glm::cross(direction, up));
     }
+    if (key == 'a')
+    {
+        p->get_scene().get_objs()[1].get_body()->applyCentralImpulse(
+            btVector3(0.f, 5.f, 0.f));
+    }
 
     update_position();
 }
@@ -141,9 +146,16 @@ void display()
         glm::vec3 newpos(trans.getOrigin().getX(), trans.getOrigin().getY(),
                          trans.getOrigin().getZ());
         p->set_mat4_uniform("transform", obj.move(newpos));
+        // std::cout << obj.get_position().x << " " << obj.get_position().y << "
+        // " << obj.get_position().z << std::endl;
         glDrawArrays(GL_TRIANGLES, 0, obj.get_triangles_number());
         TEST_OPENGL_ERROR();
     }
+
+    // std::cout << "camera: " << position.x << " " << position.y << " " <<
+    // position.z << std::endl;
+
+    // std::cout << std::endl;
     glutSwapBuffers();
     glutPostRedisplay();
 }

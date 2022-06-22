@@ -8,39 +8,6 @@ Object::Object(std::string obj_file, std::string texture, glm::vec3 position,
     , texture_(tifo::load_image(texture.c_str()))
 {
     load_obj(obj_file.c_str(), vertices_, uv_, normals_);
-    float min_x = 0;
-    float max_x = 0;
-    float min_y = 0;
-    float max_y = 0;
-    float min_z = 0;
-    float max_z = 0;
-    for (auto i : vertices_)
-    {
-        if (i.x < min_x)
-        {
-            min_x = i.x;
-        }
-        else if (i.x > max_x)
-        {
-            max_x = i.x;
-        }
-        if (i.y < min_y)
-        {
-            min_y = i.y;
-        }
-        else if (i.y > max_y)
-        {
-            max_y = i.y;
-        }
-        if (i.z < min_z)
-        {
-            min_z = i.z;
-        }
-        else if (i.z > max_z)
-        {
-            max_z = i.z;
-        }
-    }
 
     unsigned int verts; // VBO
     unsigned int norms; // VBO
@@ -88,14 +55,16 @@ Object::Object(std::string obj_file, std::string texture, glm::vec3 position,
 
     // create a dynamic rigidbody
 
-    std::cout << "x : " << max_x << " " << min_x << std::endl;
-    std::cout << "size: " << max_x - min_x << std::endl;
-    std::cout << "y : " << max_y << " " << min_y << std::endl;
-    std::cout << "size: " << max_y - min_y << std::endl;
-    std::cout << "z : " << max_z << " " << min_z << std::endl;
-    std::cout << "size: " << max_z - min_z << std::endl;
-    colShape_ =
-        new btBoxShape(btVector3(max_x - min_x, max_y - min_y, max_x - min_z));
+    // colShape_ =
+    //     new btBoxShape(btVector3(1.0, 1.0, 1.0));
+
+    btConvexHullShape *shape = new btConvexHullShape();
+    for (auto i : vertices_)
+    {
+        shape->addPoint(btVector3(i.x, i.y, i.z));
+    }
+    shape->optimizeConvexHull();
+    colShape_ = shape;
     // colShape_ = new btSphereShape(btScalar(1.));
 
     /// Create Dynamic Objects
@@ -173,11 +142,20 @@ btRigidBody *Object::get_body()
 
 glm::mat4 Object::move(glm::vec3 pos)
 {
-    transform_ = glm::translate(transform_, pos);
+    transform_ = glm::translate(transform_, pos - position_);
+    // glm::vec4 tmp(pos - position_, 1.0);
+    // tmp = tmp * transform_;
+    // position_ = glm::vec3(tmp.x, tmp.y, tmp.z);
+    position_ = pos - position_;
     return transform_;
 }
 
 glm::mat4 Object::get_transform()
 {
     return transform_;
+}
+
+glm::vec3 Object::get_position()
+{
+    return position_;
 }

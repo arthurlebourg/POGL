@@ -25,6 +25,8 @@ public:
 
     glm::mat4 get_transform();
 
+    glm::vec3 get_position();
+
 private:
     glm::vec3 position_;
     glm::mat4 transform_;
