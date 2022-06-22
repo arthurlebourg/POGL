@@ -4,33 +4,14 @@
 
 Program *p;
 
-float yaw = -90.0f;
-float pitch = 0.0f;
-
 int old_pos_x = 0;
 int old_pos_y = 0;
 int win_w = 1024;
 int win_h = 1024;
 bool firstMouse = true;
 
-glm::vec3 position(0, 0, 3.0);
-glm::vec3 direction(0, 1, 0);
-glm::vec3 up(0, 1, 0);
-float camera_speed = 0.1f;
-
 float deltaTime = 0.0f; // Time between current frame and last frame
 float lastFrame = 0.0f; // Time of last frame
-
-void update_position()
-{
-    glm::mat4 model_view_matrix =
-        glm::lookAt(position, position + direction, up);
-    p->set_mat4_uniform("model_view_matrix", model_view_matrix);
-
-    glm::mat4 projection_matrix =
-        glm::frustum(-0.5, 0.5, -0.5, 0.5, 1.0, 500.0);
-    p->set_mat4_uniform("projection_matrix", projection_matrix);
-}
 
 void mouse_motion_callback(int x, int y)
 {
@@ -50,18 +31,18 @@ void mouse_motion_callback(int x, int y)
     xoffset *= deltaTime * sensitivity;
     yoffset *= deltaTime * sensitivity;
 
-    yaw += xoffset;
-    pitch += yoffset;
+    p->get_player()->add_yaw(xoffset);
+    p->get_player()->add_pitch(yoffset);
 
-    if (pitch > 89.0f)
-        pitch = 89.0f;
-    if (pitch < -89.0f)
-        pitch = -89.0f;
+    float dir_x = cos(glm::radians(p->get_player()->get_yaw()))
+        * cos(glm::radians(p->get_player()->get_pitch()));
+    float dir_y = sin(glm::radians(p->get_player()->get_pitch()));
+    float dir_z = sin(glm::radians(p->get_player()->get_yaw()))
+        * cos(glm::radians(p->get_player()->get_pitch()));
 
-    direction.x = cos(glm::radians(yaw)) * cos(glm::radians(pitch));
-    direction.y = sin(glm::radians(pitch));
-    direction.z = sin(glm::radians(yaw)) * cos(glm::radians(pitch));
-    direction = glm::normalize(direction);
+    p->get_player()->set_direction(glm::vec3(dir_x, dir_y, dir_z));
+
+    p->get_player()->normalize_direction();
 
     // this is the main thing that keeps it from leaving the screen
     if (x < 100 || x > win_w - 100)
@@ -81,12 +62,12 @@ void mouse_motion_callback(int x, int y)
         glutWarpPointer(win_w / 2, win_h / 2);
     }
 
-    update_position();
+    p->update_position();
 }
 
 void keyboard_callback(unsigned char key, int, int)
 {
-    if (key == 'z')
+    /*if (key == 'z')
     {
         position += camera_speed * deltaTime * direction;
     }
@@ -104,13 +85,14 @@ void keyboard_callback(unsigned char key, int, int)
         position += camera_speed * deltaTime
             * glm::normalize(glm::cross(direction, up));
     }
+    */
     if (key == 'a')
     {
-        p->get_scene().get_objs()[1].get_body()->applyCentralImpulse(
+        p->get_scene()->get_objs()[1].get_body()->applyCentralImpulse(
             btVector3(0.f, 5.f, 0.f));
     }
 
-    update_position();
+    p->update_position();
 }
 
 void window_resize(int width, int height)
@@ -132,9 +114,9 @@ void display()
     TEST_OPENGL_ERROR();
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
     TEST_OPENGL_ERROR();
-    p->get_scene().get_dynamic_world()->stepSimulation(deltaTime * 0.1f / 60.f,
-                                                       1);
-    for (Object obj : p->get_scene().get_objs())
+    p->get_scene()->get_dynamic_world()->stepSimulation(deltaTime * 0.1f / 60.f,
+                                                        1);
+    for (Object obj : p->get_scene()->get_objs())
     {
         glBindVertexArray(obj.get_VAO());
         obj.bind_texture(p->shader_program_);
@@ -198,8 +180,9 @@ bool initGL()
     return true;
 }
 
-Program::Program(Scene scene)
+Program::Program(Scene *scene, Player *player)
     : scene_(scene)
+    , player_(player)
     , ready_(false)
 {
     vertex_shader_ = glCreateShader(GL_VERTEX_SHADER);
@@ -219,9 +202,10 @@ Program::~Program()
 }
 
 Program *Program::make_program(std::string &vertex_shader_src,
-                               std::string &fragment_shader_src, Scene scene)
+                               std::string &fragment_shader_src, Scene *scene,
+                               Player *player)
 {
-    p = new Program(scene);
+    p = new Program(scene, player);
     int success;
     std::string vertex_shader_content = read_file(vertex_shader_src);
     std::string fragment_shader_content = read_file(fragment_shader_src);
@@ -284,9 +268,9 @@ Program *Program::make_program(std::string &vertex_shader_src,
 
     glUseProgram(p->shader_program_);
 
-    update_position();
+    p->update_position();
 
-    p->set_vec3_uniform("light_pos", scene.get_light());
+    p->set_vec3_uniform("light_pos", scene->get_light());
 
     p->ready_ = true;
     TEST_OPENGL_ERROR();
@@ -325,7 +309,24 @@ void Program::set_vec3_uniform(const char *name, glm::vec3 vec)
     TEST_OPENGL_ERROR();
 }
 
-Scene Program::get_scene()
+Scene *Program::get_scene()
 {
     return scene_;
+}
+
+Player *Program::get_player()
+{
+    return player_;
+}
+
+void Program::update_position()
+{
+    glm::mat4 model_view_matrix = glm::lookAt(
+        player_->get_position(),
+        player_->get_position() + player_->get_direction(), player_->get_up());
+    p->set_mat4_uniform("model_view_matrix", model_view_matrix);
+
+    glm::mat4 projection_matrix =
+        glm::frustum(-0.5, 0.5, -0.5, 0.5, 1.0, 500.0);
+    p->set_mat4_uniform("projection_matrix", projection_matrix);
 }
