@@ -23,7 +23,7 @@ $(OBJ_DIR)/%.o: %.cc
 
 $(BIN_DIR)/$(TARGET): $(OBJECTS)
 	@mkdir -p $(@D)
-	$(CXX) $(CXXFLAGS) -o $(BIN_DIR)/$(TARGET) $(LDXX_FLAGS) $^ $(LDFLAGS)
+	$(CXX) $(CXXFLAGS) -o $(BIN_DIR)/$(TARGET) $^ $(LDFLAGS) $(LDXX_FLAGS)
 
 -include $(DEPENDENCIES)
 
