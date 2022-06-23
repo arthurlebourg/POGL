@@ -68,6 +68,7 @@ void keyboard_keyup(unsigned char key, int, int)
 {
     key_states[key] = false;
 }
+
 void keyboard_keydown(unsigned char key, int, int)
 {
     if (key == ' ')
@@ -145,7 +146,7 @@ bool init_glut(int &argc, char *argv[])
     glutInitDisplayMode(GLUT_RGBA | GLUT_DOUBLE | GLUT_DEPTH);
     glutInitWindowSize(1024, 1024);
     glutInitWindowPosition(10, 10);
-    glutCreateWindow("TP2 -- Arthur Le Bourg");
+    glutCreateWindow("Portal");
     glutDisplayFunc(display);
     glutReshapeFunc(window_resize);
     glutPassiveMotionFunc(mouse_motion_callback);
