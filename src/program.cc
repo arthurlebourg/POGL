@@ -112,9 +112,19 @@ void display()
 
         btRigidBody *body = obj.get_body();
         body->getMotionState()->getWorldTransform(trans);
+
+        btScalar m[16];
+        trans.getOpenGLMatrix(m);
+        p->set_mat4_uniform("transform", m);
+
+        /*
         glm::vec3 newpos(trans.getOrigin().getX(), trans.getOrigin().getY(),
                          trans.getOrigin().getZ());
-        p->set_mat4_uniform("transform", obj.move(newpos));
+
+
+
+        p->set_mat4_uniform("transform", obj.move(newpos) + RotationMatrix);
+        */
         glDrawArrays(GL_TRIANGLES, 0, obj.get_triangles_number());
         TEST_OPENGL_ERROR();
     }
@@ -295,6 +305,19 @@ void Program::set_mat4_uniform(const char *name, glm::mat4 mat)
     GLint location = glGetUniformLocation(shader_program_, name);
     TEST_OPENGL_ERROR();
     glUniformMatrix4fv(location, 1, GL_FALSE, glm::value_ptr(mat));
+    TEST_OPENGL_ERROR();
+}
+
+void Program::set_mat4_uniform(const char *name, btScalar *mat)
+{
+    float res[16];
+    for (int i = 0; i < 16; i++)
+    {
+        res[i] = (float)mat[i];
+    }
+    GLint location = glGetUniformLocation(shader_program_, name);
+    TEST_OPENGL_ERROR();
+    glUniformMatrix4fv(location, 1, GL_FALSE, res);
     TEST_OPENGL_ERROR();
 }
 

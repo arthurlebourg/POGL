@@ -31,6 +31,7 @@ Player::Player(glm::vec3 position, glm::vec3 direction)
     btRigidBody::btRigidBodyConstructionInfo rbInfo(mass, myMotionState,
                                                     colShape_, localInertia);
     body_ = new btRigidBody(rbInfo);
+    body_->setAngularFactor(btVector3(0, 1, 0));
 }
 
 float Player::get_yaw()
