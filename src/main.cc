@@ -19,9 +19,9 @@ int main(int argc, char *argv[])
 
     Scene *scene = new Scene(glm::vec3(-10.0, -10.0, -10.0));
     scene->add_player(player);
-    scene->add_object(plane);
-    scene->add_object(amogus);
-    scene->add_object(amogus_center);
+    scene->add_object(std::make_shared<Object>(plane));
+    scene->add_object(std::make_shared<Object>(amogus));
+    scene->add_object(std::make_shared<Object>(amogus_center));
 
     Program *prog =
         Program::make_program(vertex_src, fragment_src, scene, player);

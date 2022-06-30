@@ -154,3 +154,35 @@ std::string read_file(const std::string &filename)
     input_src_file.close();
     return file_content;
 }
+
+void set_mat4_uniform(unsigned int shader_program, const char *name,
+                      glm::mat4 mat)
+{
+    GLint location = glGetUniformLocation(shader_program, name);
+    TEST_OPENGL_ERROR();
+    glUniformMatrix4fv(location, 1, GL_FALSE, glm::value_ptr(mat));
+    TEST_OPENGL_ERROR();
+}
+
+void set_mat4_uniform(unsigned int shader_program, const char *name,
+                      btScalar *mat)
+{
+    float res[16];
+    for (int i = 0; i < 16; i++)
+    {
+        res[i] = (float)mat[i];
+    }
+    GLint location = glGetUniformLocation(shader_program, name);
+    TEST_OPENGL_ERROR();
+    glUniformMatrix4fv(location, 1, GL_FALSE, res);
+    TEST_OPENGL_ERROR();
+}
+
+void set_vec3_uniform(unsigned int shader_program, const char *name,
+                      glm::vec3 vec)
+{
+    GLint location = glGetUniformLocation(shader_program, name);
+    TEST_OPENGL_ERROR();
+    glUniform3fv(location, 1, glm::value_ptr(vec));
+    TEST_OPENGL_ERROR();
+}

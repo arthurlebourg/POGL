@@ -94,57 +94,12 @@ void display()
     deltaTime = currentFrame - lastFrame;
     lastFrame = currentFrame;
 
-    TEST_OPENGL_ERROR();
-    glUseProgram(p->shader_program_);
-    TEST_OPENGL_ERROR();
-    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-    TEST_OPENGL_ERROR();
-
-    p->get_scene()->get_dynamic_world()->stepSimulation(deltaTime * 0.1f / 60.f,
-                                                        1);
-    btTransform trans;
-    trans.setIdentity();
-    for (Object obj : p->get_scene()->get_objs())
-    {
-        glBindVertexArray(obj.get_VAO());
-        obj.bind_texture(p->shader_program_);
-        trans.setIdentity();
-
-        btRigidBody *body = obj.get_body();
-        body->getMotionState()->getWorldTransform(trans);
-
-        btScalar m[16];
-        trans.getOpenGLMatrix(m);
-        p->set_mat4_uniform("transform", m);
-
-        /*
-        glm::vec3 newpos(trans.getOrigin().getX(), trans.getOrigin().getY(),
-                         trans.getOrigin().getZ());
-
-
-
-        p->set_mat4_uniform("transform", obj.move(newpos) + RotationMatrix);
-        */
-        glDrawArrays(GL_TRIANGLES, 0, obj.get_triangles_number());
-        TEST_OPENGL_ERROR();
-    }
-    trans.setIdentity();
-    btRigidBody *player_body = p->get_player()->get_body();
-    player_body->getMotionState()->getWorldTransform(trans);
-    p->get_player()->set_position(trans.getOrigin().getX(),
-                                  trans.getOrigin().getY(),
-                                  trans.getOrigin().getZ());
-
+    p->get_scene()->update_physics(deltaTime, p->get_player());
     p->update_position();
     p->get_player()->move(key_states['z'] - key_states['s'],
                           key_states['d'] - key_states['q'], deltaTime);
 
-    // std::cout << "camera: " << position.x << " " << position.y << " " <<
-    // position.z << std::endl;
-
-    // std::cout << std::endl;
-    glutSwapBuffers();
-    glutPostRedisplay();
+    p->get_scene()->render(p->shader_program_);
 }
 
 bool init_glut(int &argc, char *argv[])

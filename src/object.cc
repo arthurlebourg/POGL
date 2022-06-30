@@ -139,9 +139,6 @@ btRigidBody *Object::get_body()
 glm::mat4 Object::move(glm::vec3 pos)
 {
     transform_ = glm::translate(transform_, pos - position_);
-    // glm::vec4 tmp(pos - position_, 1.0);
-    // tmp = tmp * transform_;
-    // position_ = glm::vec3(tmp.x, tmp.y, tmp.z);
     position_ = pos - position_;
     return transform_;
 }
@@ -149,6 +146,11 @@ glm::mat4 Object::move(glm::vec3 pos)
 glm::mat4 Object::get_transform()
 {
     return transform_;
+}
+
+void Object::set_transform(btScalar *mat)
+{
+    transform_ = glm::make_mat4(mat);
 }
 
 glm::vec3 Object::get_position()
