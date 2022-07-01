@@ -115,6 +115,24 @@ void Scene::render(const unsigned int shader_program,
     glutPostRedisplay();
 }
 
+glm::mat4 portal_view(glm::mat4 orig_view, std::shared_ptr<Portal> src,
+                      std::shared_ptr<Portal> dst)
+{
+    glm::mat4 mv = orig_view * src->get_transform();
+    glm::mat4 portal_cam =
+        // 3. transformation from source portal to the camera - it's the
+        //    first portal's ModelView matrix:
+        mv
+        // 2. object is front-facing, the camera is facing the other way:
+        * glm::rotate(glm::mat4(1.0), glm::radians(180.0f),
+                      glm::vec3(0.0, 1.0, 0.0))
+        // 1. go the destination portal; using inverse, because camera
+        //    transformations are reversed compared to object
+        //    transformations:
+        * glm::inverse(dst->get_transform());
+    return portal_cam;
+}
+
 void Scene::render_portals(unsigned int shader_program,
                            glm::mat4 const &view_mat, glm::mat4 const &proj_mat,
                            unsigned int recursion_level)
@@ -160,10 +178,14 @@ void Scene::render_portals(unsigned int shader_program,
         glDrawArrays(GL_TRIANGLES, 0, portal->get_triangles_number());
 
         // Calculate view matrix as if the player was already teleported
+        /*
         glm::mat4 destView = view_mat * portal->get_transform()
             * glm::rotate(glm::mat4(1.0f), 180.0f,
                           glm::vec3(0.0f, 1.0f, 0.0f) * portal->get_rotation())
             * glm::inverse(portal->get_destination()->get_transform());
+         */
+        glm::mat4 destView =
+            portal_view(view_mat, portal, portal->get_destination());
 
         // Base case, render inside of inner portal
         if (recursion_level == max_recursion_level_)
