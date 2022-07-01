@@ -6,7 +6,7 @@ Player::Player(const glm::vec3 position, const glm::vec3 direction)
     , position_(position)
     , direction_(direction)
     , up_(glm::vec3(0, 1, 0))
-    , speed_(1.0f)
+    , speed_(0.8f)
     , colShape_(new btBoxShape(btVector3(10.0, 10.0, 10.0)))
 {
     /// Create Dynamic Objects
@@ -91,41 +91,16 @@ btRigidBody *Player::get_body()
     return body_;
 }
 
-// glm::vec3 correct_dir(const glm::vec3 playerLookingDir)
-// {
-//     // if not looking straight forward
-//     // if (playerLookingDir.y != 0)
-//     // {
-//     //     return glm::vec3(playerLookingDir.x, 0, playerLookingDir.z);
-//     // }
-//     // return playerLookingDir;
-
-// }
-
-
-// void Player::move(const int forward, const int sideward, const float deltaTime)
-// {
-//     body_->activate();
-//     btVector3 vel = body_->getLinearVelocity();
-
-//     auto distance = forward * speed_ * deltaTime + 0 * sideward;
-
-//     auto new_position_x = distance * sin(pitch_);
-//     auto new_position_z = distance * cos(pitch_);
-//     std::cout << forward << "----side: " << sideward << "----distance: " << new_position_x << " " << new_position_z << std::endl;
-
-//     vel.setX(direction_.x + new_position_x);
-//     vel.setZ(direction_.z + new_position_z);
-
-//     body_->setLinearVelocity(vel);
-// }
-
 glm::vec3 apply_new_base(glm::vec3 direction, glm::vec3 vec) {
     glm::vec3 new_dir = glm::normalize(direction);
-    // glm::vec3 new_y = glm::cross(new_z, glm::vec3(0, 0, 1));
-    // glm::vec3 new_x = glm::cross(new_z, new_y);
-    // glm::vec3 res = glm::mat3(new_x, new_y, new_z) * vec;
     return glm::vec3(new_dir.x * vec.x, 0, new_dir.z * vec.z);
+}
+
+float calculate_angleRotY(glm::vec3 direction)
+{
+    glm::vec3 direction_along_z = glm::vec3(0, 0, direction.z);
+    return acos(glm::dot(direction, direction_along_z)
+           / (glm::length(direction) * glm::length(direction_along_z)));
 }
 
 void Player::move(const int forward, const int sideward, const float deltaTime)
@@ -133,20 +108,17 @@ void Player::move(const int forward, const int sideward, const float deltaTime)
     body_->activate();
     btVector3 vel = body_->getLinearVelocity();
 
-    auto angleRotY = acos(glm::dot(direction_, glm::vec3(0, 0, direction_.z)) / (glm::length(direction_) * glm::length(glm::vec3(0, 0, direction_.z))));
-    glm::vec3 correctedLookingDir = cos(angleRotY) * direction_ + sin(angleRotY) * glm::cross(glm::normalize(glm::cross(direction_, up_)), direction_);
+    // angleRotY = angle(playerLookingDirection, playerLookingStraightForwardDirection) = angle(direction_, direction_along_z)
+    auto angleRotY = calculate_angleRotY(direction_);
 
-    
-    // glm::vec3 lefttLookingDir = cos(pitch_) * direction_ + sin(pitch_) * glm::cross(glm::normalize(glm::cross(direction_, up_)), direction_);
+    // new_position is vector with original base
+    auto new_position = glm::vec3(sin(angleRotY), 0, cos(angleRotY));
 
+    // apply new base which changes its dir and original when player moves
+    auto correctedDir = apply_new_base(direction_, new_position);
 
-    glm::vec3 dir = forward * speed_ * deltaTime * apply_new_base(direction_, glm::vec3(sin(angleRotY), 0, cos(angleRotY)))
-        + sideward * 0 * speed_ * deltaTime
-            * glm::normalize(glm::cross(correctedLookingDir, up_));
-
-    // glm::vec3 dir = forward * speed_ * deltaTime * direction_
-    //     + sideward * speed_ * deltaTime
-    //         * glm::normalize(glm::cross(direction_, up_));
+    glm::vec3 dir = forward * speed_ * deltaTime * correctedDir
+        + sideward * speed_ * deltaTime * glm::normalize(glm::cross(correctedDir, up_));
 
     vel.setX(dir.x);
     vel.setZ(dir.z);
