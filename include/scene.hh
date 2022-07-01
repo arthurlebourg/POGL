@@ -24,6 +24,10 @@ public:
 
     void update_physics(const float deltaTime, std::shared_ptr<Player> player);
 
+    void draw(const unsigned int shader_program,
+              glm::mat4 const &model_view_matrix,
+              glm::mat4 const &projection_matrix);
+
     void render(const unsigned int shader_program,
                 glm::mat4 const &model_view_matrix,
                 glm::mat4 const &projection_matrix);
@@ -40,5 +44,5 @@ private:
 
     btDiscreteDynamicsWorld *dynamicsWorld_;
 
-    unsigned int max_recursion_level_ = 0;
+    unsigned int max_recursion_level_ = 5;
 };

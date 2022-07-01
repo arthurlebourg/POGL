@@ -104,8 +104,10 @@ void display()
 
     // p->get_scene()->render(p->shader_program_, model_view_matrix,
     // projection_matrix);
-    p->get_scene()->render_portals(p->shader_program_, model_view_matrix,
-                                   projection_matrix, 0);
+    // p->get_scene()->render_portals(p->shader_program_, model_view_matrix,
+    //                             projection_matrix, 0);
+    p->get_scene()->draw(p->shader_program_, model_view_matrix,
+                         projection_matrix);
 }
 
 bool init_glut(int &argc, char *argv[])
@@ -145,8 +147,6 @@ bool initGL()
     glEnable(GL_CULL_FACE);
     TEST_OPENGL_ERROR();
     glEnable(GL_BLEND);
-    TEST_OPENGL_ERROR();
-    glClearColor(0.0, 0.0, 0.5, 1.0);
     TEST_OPENGL_ERROR();
     return true;
 }

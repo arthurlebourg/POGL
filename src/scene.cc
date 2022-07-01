@@ -81,16 +81,30 @@ void Scene::update_physics(const float deltaTime,
     }
 }
 
-void Scene::render(const unsigned int shader_program,
-                   glm::mat4 const &model_view_matrix,
-                   glm::mat4 const &projection_matrix)
+void Scene::draw(const unsigned int shader_program,
+                 glm::mat4 const &model_view_matrix,
+                 glm::mat4 const &projection_matrix)
 {
     TEST_OPENGL_ERROR();
     glUseProgram(shader_program);
     TEST_OPENGL_ERROR();
-    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
     TEST_OPENGL_ERROR();
+    glClearColor(0.0f, 0.0f, 0.5f, 1.0f);
+    glColorMask(GL_TRUE, GL_TRUE, GL_TRUE, GL_TRUE);
+    glStencilMask(0xFF);
+    glDepthMask(GL_TRUE);
+    glClear(GL_STENCIL_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_COLOR_BUFFER_BIT);
+    render_portals(shader_program, model_view_matrix, projection_matrix, 0);
+    glutSwapBuffers();
+    glutPostRedisplay();
+}
 
+void Scene::render(const unsigned int shader_program,
+                   glm::mat4 const &model_view_matrix,
+                   glm::mat4 const &projection_matrix)
+{
+    set_mat4_uniform(shader_program, "model_view_matrix", model_view_matrix);
+    set_mat4_uniform(shader_program, "projection_matrix", projection_matrix);
     for (auto obj : objects_)
     {
         glBindVertexArray(obj->get_VAO());
@@ -101,18 +115,6 @@ void Scene::render(const unsigned int shader_program,
         glDrawArrays(GL_TRIANGLES, 0, obj->get_triangles_number());
         TEST_OPENGL_ERROR();
     }
-    /*for (auto port : portals_)
-    {
-        glBindVertexArray(port->get_VAO());
-        set_mat4_uniform(shader_program, "transform", port->get_transform());
-
-        glDrawArrays(GL_TRIANGLES, 0, port->get_triangles_number());
-        TEST_OPENGL_ERROR();
-    }*/
-    set_mat4_uniform(shader_program, "model_view_matrix", model_view_matrix);
-    set_mat4_uniform(shader_program, "projection_matrix", projection_matrix);
-    glutSwapBuffers();
-    glutPostRedisplay();
 }
 
 glm::mat4 portal_view(glm::mat4 orig_view, std::shared_ptr<Portal> src,
@@ -173,17 +175,13 @@ void Scene::render_portals(unsigned int shader_program,
         glBindVertexArray(portal->get_VAO());
         TEST_OPENGL_ERROR();
 
+        set_mat4_uniform(shader_program, "model_view_matrix", view_mat);
+        set_mat4_uniform(shader_program, "projection_matrix", proj_mat);
         set_mat4_uniform(shader_program, "transform", portal->get_transform());
 
         glDrawArrays(GL_TRIANGLES, 0, portal->get_triangles_number());
 
         // Calculate view matrix as if the player was already teleported
-        /*
-        glm::mat4 destView = view_mat * portal->get_transform()
-            * glm::rotate(glm::mat4(1.0f), 180.0f,
-                          glm::vec3(0.0f, 1.0f, 0.0f) * portal->get_rotation())
-            * glm::inverse(portal->get_destination()->get_transform());
-         */
         glm::mat4 destView =
             portal_view(view_mat, portal, portal->get_destination());
 
@@ -264,6 +262,8 @@ void Scene::render_portals(unsigned int shader_program,
         glBindVertexArray(portal->get_VAO());
         TEST_OPENGL_ERROR();
 
+        set_mat4_uniform(shader_program, "model_view_matrix", view_mat);
+        set_mat4_uniform(shader_program, "projection_matrix", proj_mat);
         set_mat4_uniform(shader_program, "transform", portal->get_transform());
 
         glDrawArrays(GL_TRIANGLES, 0, portal->get_triangles_number());
@@ -295,6 +295,8 @@ void Scene::render_portals(unsigned int shader_program,
     TEST_OPENGL_ERROR();
 
     // Draw portals into depth buffer
+    set_mat4_uniform(shader_program, "model_view_matrix", view_mat);
+    set_mat4_uniform(shader_program, "projection_matrix", proj_mat);
     for (auto tmp : portals_)
     {
         glBindVertexArray(tmp->get_VAO());
