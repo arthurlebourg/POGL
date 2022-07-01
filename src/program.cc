@@ -2,7 +2,7 @@
 
 #include <fstream>
 
-Program *p;
+std::shared_ptr<Program> p;
 
 int old_pos_x = 0;
 int old_pos_y = 0;
@@ -143,7 +143,7 @@ bool initGL()
     return true;
 }
 
-Program::Program(Scene *scene, std::shared_ptr<Player> player)
+Program::Program(std::shared_ptr<Scene> scene, std::shared_ptr<Player> player)
     : scene_(scene)
     , player_(player)
     , ready_(false)
@@ -164,11 +164,11 @@ Program::~Program()
     TEST_OPENGL_ERROR();
 }
 
-Program *Program::make_program(std::string &vertex_shader_src,
-                               std::string &fragment_shader_src, Scene *scene,
+std::shared_ptr<Program> Program::make_program(std::string &vertex_shader_src,
+                               std::string &fragment_shader_src, std::shared_ptr<Scene> scene,
                                std::shared_ptr<Player> player)
 {
-    p = new Program(scene, player);
+    p = std::make_shared<Program>(scene, player);
     int success;
     std::string vertex_shader_content = read_file(vertex_shader_src);
     std::string fragment_shader_content = read_file(fragment_shader_src);
@@ -285,7 +285,7 @@ void Program::set_vec3_uniform(const char *name, glm::vec3 vec)
     TEST_OPENGL_ERROR();
 }
 
-Scene *Program::get_scene()
+std::shared_ptr<Scene> Program::get_scene()
 {
     return scene_;
 }

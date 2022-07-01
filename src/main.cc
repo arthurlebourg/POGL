@@ -15,21 +15,17 @@ int main(int argc, char *argv[])
                          1.0);
     std::cout << "amongus 2 loaded" << std::endl;
 
-    // Player *player = new Player(glm::vec3(0, 0, 3.0), glm::vec3(0, 0, -1));
     auto player = std::make_shared<Player>(glm::vec3(0, 0, 3.0), glm::vec3(0, 0, -1));
 
-    Scene *scene = new Scene(glm::vec3(-10.0, -10.0, -10.0));
+    auto scene = std::make_shared<Scene>(glm::vec3(-10.0, -10.0, -10.0));
     scene->add_player(player);
     scene->add_object(std::make_shared<Object>(plane));
     scene->add_object(std::make_shared<Object>(amogus));
     scene->add_object(std::make_shared<Object>(amogus_center));
 
-    Program *prog =
+    std::shared_ptr<Program> prog =
         Program::make_program(vertex_src, fragment_src, scene, player);
     while (!prog->is_ready())
     {}
     glutMainLoop();
-    free(prog);
-    // delete player;
-    delete scene;
 }
