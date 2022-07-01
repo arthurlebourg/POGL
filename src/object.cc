@@ -1,7 +1,7 @@
 #include "object.hh"
 
-Object::Object(const std::string obj_file, const std::string texture, const glm::vec3 position,
-               const float obj_mass)
+Object::Object(const std::string obj_file, const std::string texture,
+               const glm::vec3 position, const float obj_mass)
     : position_(position)
     , transform_(glm::mat4(1.0f))
     , mass_(obj_mass)
