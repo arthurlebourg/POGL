@@ -10,8 +10,8 @@
 class Object
 {
 public:
-    Object(const std::string obj_file, const std::string texture, const glm::vec3 position,
-               const float obj_mass);
+    Object(const std::string obj_file, const std::string texture,
+           const glm::vec3 position, const float obj_mass);
 
     void bind_texture(const unsigned int shader_program);
 

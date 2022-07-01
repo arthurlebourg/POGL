@@ -1,15 +1,15 @@
 #include "portal.hh"
 
-Portal::Portal(const float sizex, const float sizey, const glm::vec3 position, const float angle,
-               const glm::vec3 rotation)
+Portal::Portal(const float sizex, const float sizey, const glm::vec3 position,
+               float angle, const glm::vec3 rotation)
     : position_(position)
+    , rotation_(rotation)
     , transform_(glm::mat4(1.0f))
 {
     vertices_ = {
-        glm::vec3(-sizex, -sizey, 0),
-        glm::vec3(sizex, -sizey, 0),
-        glm::vec3(-sizex, sizey, 0),
-        glm::vec3(sizex, sizey, 0),
+        glm::vec3(-sizex, -sizey, 0), glm::vec3(sizex, -sizey, 0),
+        glm::vec3(-sizex, sizey, 0),  glm::vec3(-sizex, sizey, 0),
+        glm::vec3(sizex, -sizey, 0),  glm::vec3(sizex, sizey, 0),
     };
 
     unsigned int verts; // VBO
@@ -31,41 +31,8 @@ Portal::Portal(const float sizex, const float sizey, const glm::vec3 position, c
     glEnableVertexAttribArray(0);
 
     TEST_OPENGL_ERROR();
-
-    // create a dynamic rigidbody
-
-    btConvexHullShape *shape = new btConvexHullShape();
-    for (auto i : vertices_)
-    {
-        shape->addPoint(btVector3(i.x, i.y, i.z));
-    }
-    shape->optimizeConvexHull();
-    colShape_ = shape;
-
-    /// Create Dynamic Objects
-    btTransform startTransform;
-    startTransform.setIdentity();
-
-    btScalar mass(0.0f);
-
-    // rigidbody is dynamic if and only if mass is non zero, otherwise static
-    bool isDynamic = (mass != 0.f);
-
-    btVector3 localInertia(0, 0, 0);
-    if (isDynamic)
-        colShape_->calculateLocalInertia(mass, localInertia);
-
-    transform_ = glm::translate(transform_, position - position_)
+    transform_ = glm::translate(transform_, position_)
         * glm::rotate(glm::mat4(1), angle, rotation);
-    startTransform.setOrigin(btVector3(position.x, position.y, position.z));
-
-    // using motionstate is recommended, it provides interpolation capabilities,
-    // and only synchronizes 'active' objects
-    btDefaultMotionState *myMotionState =
-        new btDefaultMotionState(startTransform);
-    btRigidBody::btRigidBodyConstructionInfo rbInfo(mass, myMotionState,
-                                                    colShape_, localInertia);
-    body_ = new btRigidBody(rbInfo);
 };
 
 unsigned int Portal::get_VAO()
@@ -78,11 +45,6 @@ unsigned int Portal::get_triangles_number()
     return triangles_number_;
 }
 
-btRigidBody *Portal::get_body()
-{
-    return body_;
-}
-
 glm::mat4 Portal::get_transform()
 {
     return transform_;
@@ -91,4 +53,19 @@ glm::mat4 Portal::get_transform()
 glm::vec3 Portal::get_position()
 {
     return position_;
+}
+
+glm::vec3 Portal::get_rotation()
+{
+    return rotation_;
+}
+
+std::shared_ptr<Portal> Portal::get_destination()
+{
+    return destination_;
+}
+
+void Portal::set_destination(std::shared_ptr<Portal> portal)
+{
+    destination_ = portal;
 }

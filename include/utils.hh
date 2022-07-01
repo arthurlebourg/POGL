@@ -9,6 +9,7 @@
 #include <glm/gtc/type_ptr.hpp>
 #include <glm/gtx/string_cast.hpp>
 #include <iostream>
+#include <memory>
 #include <sstream>
 #include <vector>
 

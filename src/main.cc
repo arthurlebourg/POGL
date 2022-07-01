@@ -11,17 +11,27 @@ int main(int argc, char *argv[])
     std::cout << "plane loaded" << std::endl;
     Object amogus("amongus.obj", "pierre.tga", glm::vec3(0, 0, 0), 1.0);
     std::cout << "amongus 1 loaded" << std::endl;
-    Object amogus_center("amongus.obj", "pierre_sang.tga", glm::vec3(0, 30, 0),
-                         1.0);
-    std::cout << "amongus 2 loaded" << std::endl;
+    /*    Object amogus_center("amongus.obj", "pierre_sang.tga", glm::vec3(0,
+       30, 0), 1.0); std::cout << "amongus 2 loaded" << std::endl;
+    */
+    std::shared_ptr<Portal> first_portal = std::make_shared<Portal>(
+        Portal(4, 4, glm::vec3(5, 0.5, 2), 0.0, glm::vec3(0, 1, 0)));
+    std::shared_ptr<Portal> second_portal = std::make_shared<Portal>(
+        Portal(4, 4, glm::vec3(-5, 0.5, 2), 45.0, glm::vec3(0, 1, 0)));
 
-    auto player = std::make_shared<Player>(glm::vec3(0, 0, 3.0), glm::vec3(0, 0, -1));
+    first_portal->set_destination(second_portal);
+    second_portal->set_destination(first_portal);
+
+    auto player =
+        std::make_shared<Player>(glm::vec3(0, 0, 3.0), glm::vec3(0, 0, -1));
 
     auto scene = std::make_shared<Scene>(glm::vec3(-10.0, -10.0, -10.0));
+    scene->add_portals(first_portal);
+    scene->add_portals(second_portal);
     scene->add_player(player);
     scene->add_object(std::make_shared<Object>(plane));
     scene->add_object(std::make_shared<Object>(amogus));
-    scene->add_object(std::make_shared<Object>(amogus_center));
+    // scene->add_object(std::make_shared<Object>(amogus_center));
 
     std::shared_ptr<Program> prog =
         Program::make_program(vertex_src, fragment_src, scene, player);
