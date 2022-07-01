@@ -14,6 +14,9 @@ bool key_states[256];
 float deltaTime = 0.0f; // Time between current frame and last frame
 float lastFrame = 0.0f; // Time of last frame
 
+glm::mat4 model_view_matrix;
+glm::mat4 projection_matrix;
+
 void mouse_motion_callback(int x, int y)
 {
     if (firstMouse)
@@ -95,11 +98,14 @@ void display()
     lastFrame = currentFrame;
 
     p->get_scene()->update_physics(deltaTime, p->get_player());
-    p->update_position();
     p->get_player()->move(key_states['z'] - key_states['s'],
                           key_states['d'] - key_states['q'], deltaTime);
+    p->update_position();
 
-    p->get_scene()->render(p->shader_program_);
+    // p->get_scene()->render(p->shader_program_, model_view_matrix,
+    // projection_matrix);
+    p->get_scene()->render_portals(p->shader_program_, model_view_matrix,
+                                   projection_matrix, 0);
 }
 
 bool init_glut(int &argc, char *argv[])
@@ -108,7 +114,7 @@ bool init_glut(int &argc, char *argv[])
     glutInit(&argc, argv);
     glutInitContextVersion(4, 5);
     glutInitContextProfile(GLUT_CORE_PROFILE);
-    glutInitDisplayMode(GLUT_RGBA | GLUT_DOUBLE | GLUT_DEPTH);
+    glutInitDisplayMode(GLUT_RGBA | GLUT_DOUBLE | GLUT_DEPTH | GLUT_STENCIL);
     glutInitWindowSize(1024, 1024);
     glutInitWindowPosition(10, 10);
     glutCreateWindow("Portal");
@@ -138,6 +144,8 @@ bool initGL()
     TEST_OPENGL_ERROR();
     glEnable(GL_CULL_FACE);
     TEST_OPENGL_ERROR();
+    glEnable(GL_BLEND);
+    TEST_OPENGL_ERROR();
     glClearColor(0.0, 0.0, 0.5, 1.0);
     TEST_OPENGL_ERROR();
     return true;
@@ -165,8 +173,9 @@ Program::~Program()
 }
 
 std::shared_ptr<Program> Program::make_program(std::string &vertex_shader_src,
-                               std::string &fragment_shader_src, std::shared_ptr<Scene> scene,
-                               std::shared_ptr<Player> player)
+                                               std::string &fragment_shader_src,
+                                               std::shared_ptr<Scene> scene,
+                                               std::shared_ptr<Player> player)
 {
     p = std::make_shared<Program>(scene, player);
     int success;
@@ -297,12 +306,9 @@ std::shared_ptr<Player> Program::get_player()
 
 void Program::update_position()
 {
-    glm::mat4 model_view_matrix = glm::lookAt(
+    model_view_matrix = glm::lookAt(
         player_->get_position(),
         player_->get_position() + player_->get_direction(), player_->get_up());
-    p->set_mat4_uniform("model_view_matrix", model_view_matrix);
 
-    glm::mat4 projection_matrix =
-        glm::frustum(-0.5, 0.5, -0.5, 0.5, 1.0, 500.0);
-    p->set_mat4_uniform("projection_matrix", projection_matrix);
+    projection_matrix = glm::frustum(-0.5, 0.5, -0.5, 0.5, 1.0, 500.0);
 }

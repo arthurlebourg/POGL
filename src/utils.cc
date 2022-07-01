@@ -1,6 +1,7 @@
 #include "utils.hh"
 
-void print_err(const std::string func, const std::string file, const int line, const GLenum errCode)
+void print_err(const std::string func, const std::string file, const int line,
+               const GLenum errCode)
 {
     std::cerr << file << ":" << line << "(" << func << ") ";
     std::cerr << gluErrorString(errCode) << std::endl;

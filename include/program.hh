@@ -25,9 +25,10 @@ public:
 
     ~Program();
 
-    static std::shared_ptr<Program> make_program(std::string &vertex_shader_src,
-                                 std::string &fragment_shader_src, std::shared_ptr<Scene> scene,
-                                 std::shared_ptr<Player> player);
+    static std::shared_ptr<Program>
+    make_program(std::string &vertex_shader_src,
+                 std::string &fragment_shader_src, std::shared_ptr<Scene> scene,
+                 std::shared_ptr<Player> player);
 
     char *get_log();
 
