@@ -7,13 +7,13 @@
 class Player
 {
 public:
-    Player(glm::vec3 position, glm::vec3 direction);
+    Player(const glm::vec3 position, const glm::vec3 direction);
 
     float get_yaw();
-    void add_yaw(float f);
+    void add_yaw(const float f);
 
     float get_pitch();
-    void add_pitch(float f);
+    void add_pitch(const float f);
 
     glm::vec3 get_position();
     void set_position(float x, float y, float z);
@@ -26,7 +26,7 @@ public:
 
     btRigidBody *get_body();
 
-    void move(int forward, int sideward, float deltaTime);
+    void move(const int forward, const int sideward, const float deltaTime);
 
 private:
     float yaw_;

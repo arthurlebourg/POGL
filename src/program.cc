@@ -126,6 +126,7 @@ bool init_glut(int &argc, char *argv[])
 
 bool init_glew()
 {
+    // glewExperimental = GL_TRUE;
     return glewInit() == GLEW_OK;
 }
 
@@ -142,7 +143,7 @@ bool initGL()
     return true;
 }
 
-Program::Program(Scene *scene, Player *player)
+Program::Program(Scene *scene, std::shared_ptr<Player> player)
     : scene_(scene)
     , player_(player)
     , ready_(false)
@@ -165,7 +166,7 @@ Program::~Program()
 
 Program *Program::make_program(std::string &vertex_shader_src,
                                std::string &fragment_shader_src, Scene *scene,
-                               Player *player)
+                               std::shared_ptr<Player> player)
 {
     p = new Program(scene, player);
     int success;
@@ -289,7 +290,7 @@ Scene *Program::get_scene()
     return scene_;
 }
 
-Player *Program::get_player()
+std::shared_ptr<Player> Program::get_player()
 {
     return player_;
 }

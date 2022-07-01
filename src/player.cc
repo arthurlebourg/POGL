@@ -1,6 +1,6 @@
 #include "player.hh"
 
-Player::Player(glm::vec3 position, glm::vec3 direction)
+Player::Player(const glm::vec3 position, const glm::vec3 direction)
     : yaw_(90.0)
     , pitch_(0.0)
     , position_(position)
@@ -38,7 +38,7 @@ float Player::get_yaw()
 {
     return yaw_;
 }
-void Player::add_yaw(float f)
+void Player::add_yaw(const float f)
 {
     yaw_ += f;
 }
@@ -47,7 +47,7 @@ float Player::get_pitch()
 {
     return pitch_;
 }
-void Player::add_pitch(float f)
+void Player::add_pitch(const float f)
 {
     pitch_ += f;
 
@@ -91,7 +91,7 @@ btRigidBody *Player::get_body()
     return body_;
 }
 
-void Player::move(int forward, int sideward, float deltaTime)
+void Player::move(const int forward, const int sideward, const float deltaTime)
 {
     body_->activate();
     btVector3 vel = body_->getLinearVelocity();

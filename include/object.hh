@@ -10,10 +10,10 @@
 class Object
 {
 public:
-    Object(std::string obj_file, std::string texture, glm::vec3 position,
-           float obj_mass);
+    Object(const std::string obj_file, const std::string texture, const glm::vec3 position,
+               const float obj_mass);
 
-    void bind_texture(unsigned int shader_program);
+    void bind_texture(const unsigned int shader_program);
 
     unsigned int get_VAO();
 
@@ -21,7 +21,7 @@ public:
 
     btRigidBody *get_body();
 
-    glm::mat4 move(glm::vec3 pos);
+    glm::mat4 move(const glm::vec3 pos);
 
     glm::mat4 get_transform();
 

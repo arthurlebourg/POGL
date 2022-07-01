@@ -15,7 +15,8 @@ int main(int argc, char *argv[])
                          1.0);
     std::cout << "amongus 2 loaded" << std::endl;
 
-    Player *player = new Player(glm::vec3(0, 0, 3.0), glm::vec3(0, 0, -1));
+    // Player *player = new Player(glm::vec3(0, 0, 3.0), glm::vec3(0, 0, -1));
+    auto player = std::make_shared<Player>(glm::vec3(0, 0, 3.0), glm::vec3(0, 0, -1));
 
     Scene *scene = new Scene(glm::vec3(-10.0, -10.0, -10.0));
     scene->add_player(player);
@@ -29,6 +30,6 @@ int main(int argc, char *argv[])
     {}
     glutMainLoop();
     free(prog);
-    delete player;
+    // delete player;
     delete scene;
 }

@@ -10,8 +10,8 @@
 class Portal
 {
 public:
-    Portal(float sizex, float sizey, glm::vec3 position, float angle,
-           glm::vec3 rotation);
+    Portal(const float sizex, const float sizey, const glm::vec3 position, const float angle,
+           const glm::vec3 rotation);
 
     void bind_texture(unsigned int shader_program);
 

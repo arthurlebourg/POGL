@@ -1,7 +1,7 @@
 #include "object.hh"
 
-Object::Object(std::string obj_file, std::string texture, glm::vec3 position,
-               float obj_mass)
+Object::Object(const std::string obj_file, const std::string texture, const glm::vec3 position,
+               const float obj_mass)
     : position_(position)
     , transform_(glm::mat4(1.0f))
     , mass_(obj_mass)
@@ -122,7 +122,7 @@ unsigned int Object::get_triangles_number()
     return triangles_number_;
 }
 
-void Object::bind_texture(unsigned int shader_program)
+void Object::bind_texture(const unsigned int shader_program)
 {
     glBindTexture(GL_TEXTURE_2D, texture_id_);
     unsigned tex_location =
@@ -136,7 +136,7 @@ btRigidBody *Object::get_body()
     return body_;
 }
 
-glm::mat4 Object::move(glm::vec3 pos)
+glm::mat4 Object::move(const glm::vec3 pos)
 {
     transform_ = glm::translate(transform_, pos - position_);
     position_ = pos - position_;

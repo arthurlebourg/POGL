@@ -1,6 +1,6 @@
 #include "scene.hh"
 
-Scene::Scene(glm::vec3 light)
+Scene::Scene(const glm::vec3 light)
     : light_(light)
 {
     /// collision configuration contains default setup for memory, collision
@@ -28,13 +28,13 @@ Scene::Scene(glm::vec3 light)
     dynamicsWorld_->setGravity(btVector3(0, -10, 0));
 }
 
-void Scene::add_object(std::shared_ptr<Object> obj)
+void Scene::add_object(const std::shared_ptr<Object> obj)
 {
     objects_.push_back(obj);
     dynamicsWorld_->addRigidBody(obj->get_body());
 }
 
-void Scene::add_player(Player *player)
+void Scene::add_player(const std::shared_ptr<Player> player)
 {
     dynamicsWorld_->addRigidBody(player->get_body());
 }
@@ -54,7 +54,7 @@ btDiscreteDynamicsWorld *Scene::get_dynamic_world()
     return dynamicsWorld_;
 }
 
-void Scene::update_physics(float deltaTime, Player *player)
+void Scene::update_physics(const float deltaTime, std::shared_ptr<Player> player)
 {
     dynamicsWorld_->stepSimulation(deltaTime * 0.1f / 60.0f, 1);
     btTransform trans;
@@ -76,7 +76,7 @@ void Scene::update_physics(float deltaTime, Player *player)
     }
 }
 
-void Scene::render(unsigned int shader_program)
+void Scene::render(const unsigned int shader_program)
 {
     TEST_OPENGL_ERROR();
     glUseProgram(shader_program);

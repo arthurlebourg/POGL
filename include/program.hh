@@ -21,13 +21,13 @@ bool initGL();
 class Program
 {
 public:
-    Program(Scene *scene, Player *player);
+    Program(Scene *scene, std::shared_ptr<Player> player);
 
     ~Program();
 
     static Program *make_program(std::string &vertex_shader_src,
                                  std::string &fragment_shader_src, Scene *scene,
-                                 Player *player);
+                                 std::shared_ptr<Player> player);
 
     char *get_log();
 
@@ -44,13 +44,13 @@ public:
 
     Scene *get_scene();
 
-    Player *get_player();
+    std::shared_ptr<Player> get_player();
 
     void update_position();
 
 private:
     Scene *scene_;
-    Player *player_;
+    std::shared_ptr<Player> player_;
     unsigned int vertex_shader_;
     unsigned int fragment_shader_;
 

@@ -3,7 +3,7 @@ CXXFLAGS := -pedantic-errors -Wall -Wextra -Werror -O3 $(shell pkg-config --cfla
 #CXXFLAGS += -m64 -march=native
 #CXXFLAGS += -fopt-info-vec-optimized #-fopt-info-vec-missed -ftree-vectorize
 LDFLAGS  := -L/usr/lib -lstdc++ -lm $(shell pkg-config --libs bullet)
-LDXX_FLAGS = -lGL  -lGLEW -lglut -lpthread
+LDXX_FLAGS = -lGL  -lGLEW -lglut -lpthread -lGLU
 
 OBJ_DIR  := ./build
 BIN_DIR  := ./bin

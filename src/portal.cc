@@ -1,7 +1,7 @@
 #include "portal.hh"
 
-Portal::Portal(float sizex, float sizey, glm::vec3 position, float angle,
-               glm::vec3 rotation)
+Portal::Portal(const float sizex, const float sizey, const glm::vec3 position, const float angle,
+               const glm::vec3 rotation)
     : position_(position)
     , transform_(glm::mat4(1.0f))
 {

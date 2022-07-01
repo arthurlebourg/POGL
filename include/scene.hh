@@ -8,11 +8,11 @@
 class Scene
 {
 public:
-    Scene(glm::vec3 light);
+    Scene(const glm::vec3 light);
 
-    void add_object(std::shared_ptr<Object> obj);
+    void add_object(const std::shared_ptr<Object> obj);
 
-    void add_player(Player *player);
+    void add_player(const std::shared_ptr<Player> player);
 
     std::vector<std::shared_ptr<Object>> get_objs();
 
@@ -20,9 +20,9 @@ public:
 
     btDiscreteDynamicsWorld *get_dynamic_world();
 
-    void update_physics(float deltaTime, Player *player);
+    void update_physics(const float deltaTime, std::shared_ptr<Player> player);
 
-    void render(unsigned int shader_program);
+    void render(const unsigned int shader_program);
 
     void render_portals(unsigned int shader_program);
 
