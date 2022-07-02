@@ -103,7 +103,6 @@ float calculate_angleRotX(glm::vec3 direction)
 glm::vec3 apply_rotation(const glm::vec3 direction, const float angle)
 {
     auto rotation = glm::mat3(1, 0, 0, 0, cos(angle), -sin(angle), 0, sin(angle), cos(angle));
-    // auto rotation = glm::mat3(cos(angle), -sin(angle), 0, sin(angle), cos(angle), 0, 0, 0, 1);
     return rotation * direction;
 }
 
@@ -120,11 +119,6 @@ void Player::move(const int forward, const int sideward, const float deltaTime)
 
     glm::vec3 dir = forward * speed_ * deltaTime * correctedDir
         + sideward * speed_ * deltaTime * glm::normalize(glm::cross(correctedDir, up_));
-
-
-    // glm::vec3 dir = forward * speed_ * deltaTime * direction_
-    //     + sideward * speed_ * deltaTime
-    //         * glm::normalize(glm::cross(direction_, up_));
 
     vel.setX(dir.x);
     vel.setZ(dir.z);
