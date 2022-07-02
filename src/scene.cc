@@ -157,15 +157,15 @@ void Scene::update_physics(const float deltaTime,
 
             glm::mat4 new_trans_glm = portal_view(
                 player->get_model_view(), portal, portal->get_destination());
-            
+
             glm::mat4 new_world_perception = glm::inverse(new_trans_glm);
 
-            glm::vec3 pos =
-                glm::vec3(new_world_perception[3][0], new_world_perception[3][1],
-                          new_world_perception[3][2]);
+            glm::vec3 pos = glm::vec3(new_world_perception[3][0],
+                                      new_world_perception[3][1],
+                                      new_world_perception[3][2]);
 
             btTransform new_trans_bt;
-            player_body->clearForces();
+            // player_body->clearForces();
             new_trans_bt.setIdentity();
             new_trans_bt.setOrigin(btVector3(pos.x, pos.y, pos.z));
             player_body->setWorldTransform(new_trans_bt);
@@ -173,16 +173,6 @@ void Scene::update_physics(const float deltaTime,
             std::cout << pos.x << ", " << pos.y << ", " << pos.z << std::endl;
 
             player->set_position(pos.x, pos.y, pos.z);
-            
-
-            /*glm::vec3 right = glm::vec3(
-                 new_trans_glm[0][0], newzz_trans_glm[0][1], new_trans_glm[0][2]);
-             glm::vec3 up = glm::vec3(new_trans_glm[1][0], new_trans_glm[1][1],
-                                      new_trans_glm[1][2]);
-
-             player->set_direction(-glm::cross(up, right));
-             player->normalize_direction();
-             */
         }
     }
 
