@@ -76,6 +76,17 @@ glm::mat4 portal_view(glm::mat4 orig_view, std::shared_ptr<Portal> src,
     return portal_cam;
 }
 
+bool portal_intersection(std::shared_ptr<Portal> portal,
+                         std::shared_ptr<Player> player)
+{
+    float dist = glm::distance(player->get_position(), portal->get_position());
+    if (dist < 2.5)
+    {
+        return true;
+    }
+    return false;
+}
+
 /**
  * Checks whether the line defined by two points la and lb intersects
  * the portal.
@@ -106,11 +117,12 @@ bool portal_intersection(glm::vec4 la, glm::vec4 lb,
             float t = tuv.x, u = tuv.y, v = tuv.z;
 
             // intersection with the plane
-            if (t >= 0 - 1e-6 && t <= 1 + 1e-6)
+            float lambda = 1e-6;
+            if (t >= 0 - lambda && t <= 1 + lambda)
             {
                 // intersection with the triangle
-                if (u >= 0 - 1e-6 && u <= 1 + 1e-6 && v >= 0 - 1e-6
-                    && v <= 1 + 1e-6 && (u + v) <= 1 + 1e-6)
+                if (u >= 0 - lambda && u <= 1 + lambda && v >= 0 - lambda
+                    && v <= 1 + lambda && (u + v) <= 1 + lambda)
                 {
                     return true;
                 }
@@ -137,7 +149,8 @@ void Scene::update_physics(const float deltaTime,
     {
         glm::vec4 la = glm::inverse(prev_pos) * glm::vec4(0.0, 0.0, 0.0, 1.0);
         glm::vec4 lb = glm::inverse(player->get_model_view())
-            * glm::vec4(0.0, 0.0, 0.0, 1.0);
+            * glm::vec4(player->get_direction(), 1.0);
+        // if (portal_intersection(portal, player))
         if (portal_intersection(la, lb, portal))
         {
             std::cout << "zioup" << std::endl;
@@ -162,14 +175,14 @@ void Scene::update_physics(const float deltaTime,
                                  new_trans_bt.getOrigin().getY(),
                                  new_trans_bt.getOrigin().getZ());
 
-            glm::vec3 right = glm::vec3(
-                new_trans_glm[0][0], new_trans_glm[0][1], new_trans_glm[0][2]);
-            glm::vec3 up = glm::vec3(new_trans_glm[1][0], new_trans_glm[1][1],
-                                     new_trans_glm[1][2]);
+            /*glm::vec3 right = glm::vec3(
+                 new_trans_glm[0][0], new_trans_glm[0][1], new_trans_glm[0][2]);
+             glm::vec3 up = glm::vec3(new_trans_glm[1][0], new_trans_glm[1][1],
+                                      new_trans_glm[1][2]);
 
-            player->set_direction(glm::cross(up, right));
-
-            player->normalize_direction();
+             player->set_direction(-glm::cross(up, right));
+             player->normalize_direction();
+             */
         }
     }
 
@@ -309,6 +322,8 @@ void Scene::render_portals(unsigned int shader_program,
             // use an edited projection matrix to set the near plane to the
             // portal plane drawNonPortals(destView,
             // portal.clippedProjMat(destView, projMat));
+            // render(shader_program, portal->clippedProjMat(destView,
+            // proj_mat), proj_mat);
             render(shader_program, destView, proj_mat);
         }
         else
@@ -316,6 +331,8 @@ void Scene::render_portals(unsigned int shader_program,
             // Recursion case
             // Pass our new view matrix and the clipped projection matrix (see
             // above)
+            // render_portals(shader_program, portal->clippedProjMat(destView,
+            // proj_mat), proj_mat,
             render_portals(shader_program, destView, proj_mat,
                            recursion_level + 1);
         }

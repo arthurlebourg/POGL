@@ -74,3 +74,25 @@ void Portal::set_destination(std::shared_ptr<Portal> portal)
 {
     destination_ = portal;
 }
+
+glm::mat4 Portal::clippedProjMat(glm::mat4 const &viewMat,
+                                 glm::mat4 const &projMat)
+{
+    float dist = glm::length(position_);
+    glm::vec4 clipPlane(glm::vec3(0.0f, 0.0f, -1.0f), dist);
+    clipPlane = glm::inverse(glm::transpose(viewMat)) * clipPlane;
+
+    if (clipPlane.w > 0.0f)
+        return projMat;
+
+    glm::vec4 q = glm::inverse(projMat)
+        * glm::vec4(glm::sign(clipPlane.x), glm::sign(clipPlane.y), 1.0f, 1.0f);
+
+    glm::vec4 c = clipPlane * (2.0f / (glm::dot(clipPlane, q)));
+
+    glm::mat4 newProj = projMat;
+    // third row = clip plane - fourth row
+    newProj = glm::row(newProj, 2, c - glm::row(newProj, 3));
+
+    return newProj;
+}

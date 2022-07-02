@@ -1,5 +1,7 @@
 #pragma once
 
+#include <glm/gtc/matrix_access.hpp>
+#include <glm/gtc/matrix_transform.hpp>
 #include <string>
 
 #include "image.hh"
@@ -29,6 +31,9 @@ public:
     std::shared_ptr<Portal> get_destination();
 
     void set_destination(std::shared_ptr<Portal> portal);
+
+    glm::mat4 clippedProjMat(glm::mat4 const &viewMat,
+                             glm::mat4 const &projMat);
 
 private:
     glm::vec3 position_;
