@@ -27,6 +27,10 @@ public:
 
     btRigidBody *get_body();
 
+    glm::mat4 get_model_view();
+
+    glm::mat4 get_projection();
+
     void move(const int forward, const int sideward, const float deltaTime);
 
 private:
@@ -35,6 +39,8 @@ private:
     glm::vec3 position_;
     glm::vec3 direction_;
     glm::vec3 up_;
+
+    glm::mat4 projection_;
 
     float speed_;
 
