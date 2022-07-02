@@ -60,6 +60,11 @@ glm::vec3 Portal::get_rotation()
     return rotation_;
 }
 
+std::vector<glm::vec3> Portal::get_vertices()
+{
+    return vertices_;
+}
+
 std::shared_ptr<Portal> Portal::get_destination()
 {
     return destination_;

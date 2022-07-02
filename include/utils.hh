@@ -33,3 +33,9 @@ void set_mat4_uniform(unsigned int shader_program, const char *name,
 
 void set_vec3_uniform(unsigned int shader_program, const char *name,
                       glm::vec3 vec);
+
+btVector3 glmToBullet(const glm::vec3 &v);
+
+btMatrix3x3 glmToBullet(const glm::mat3 &m);
+
+btTransform glmToBullet(const glm::mat4 &m);

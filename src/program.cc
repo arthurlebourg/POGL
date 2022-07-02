@@ -102,10 +102,6 @@ void display()
                           key_states['d'] - key_states['q'], deltaTime);
     p->update_position();
 
-    // p->get_scene()->render(p->shader_program_, model_view_matrix,
-    // projection_matrix);
-    // p->get_scene()->render_portals(p->shader_program_, model_view_matrix,
-    //                             projection_matrix, 0);
     p->get_scene()->draw(p->shader_program_, model_view_matrix,
                          projection_matrix);
 }
@@ -306,9 +302,7 @@ std::shared_ptr<Player> Program::get_player()
 
 void Program::update_position()
 {
-    model_view_matrix = glm::lookAt(
-        player_->get_position(),
-        player_->get_position() + player_->get_direction(), player_->get_up());
+    model_view_matrix = player_->get_model_view();
 
-    projection_matrix = glm::frustum(-0.5, 0.5, -0.5, 0.5, 1.0, 500.0);
+    projection_matrix = player_->get_projection();
 }

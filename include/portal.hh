@@ -24,6 +24,8 @@ public:
 
     glm::vec3 get_rotation();
 
+    std::vector<glm::vec3> get_vertices();
+
     std::shared_ptr<Portal> get_destination();
 
     void set_destination(std::shared_ptr<Portal> portal);
