@@ -6,9 +6,9 @@ Player::Player(const glm::vec3 position, const glm::vec3 direction)
     , position_(position)
     , direction_(direction)
     , up_(glm::vec3(0, 1, 0))
-    , projection_(glm::frustum(-0.5, 0.5, -0.5, 0.5, 1.0, 500.0))
+    , projection_(glm::frustum(-0.01, 0.01, -0.01, 0.01, 0.01, 500.0))
     , speed_(0.8f)
-    , colShape_(new btBoxShape(btVector3(10.0, 10.0, 10.0)))
+    , colShape_(new btBoxShape(btVector3(5.0, 10.0, 5.0)))
 {
     /// Create Dynamic Objects
     btTransform startTransform;
