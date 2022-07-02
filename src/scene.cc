@@ -145,8 +145,9 @@ void Scene::update_physics(const float deltaTime,
             glm::mat4 new_trans_glm = portal_view(
                 player->get_model_view(), portal, portal->get_destination());
 
-            glm::vec3 pos = glm::vec3(new_trans_glm[3][0], new_trans_glm[3][1],
-                                      new_trans_glm[3][2]);
+            glm::vec3 pos =
+                glm::vec3(-new_trans_glm[3][0], -new_trans_glm[3][1],
+                          -new_trans_glm[3][2]);
 
             btTransform new_trans_bt;
             player_body->clearForces();
