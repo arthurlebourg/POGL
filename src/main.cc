@@ -8,16 +8,17 @@ int main(int argc, char *argv[])
     std::string vertex_src("vertex.shd");
     std::string fragment_src("fragment.shd");
     Object plane("plane.obj", "white.tga", glm::vec3(0, -10, 0), 0.0);
-    std::cout << "plane loaded" << std::endl;
+    Object plane_2("plane.obj", "green.tga", glm::vec3(0, 30, 0), 0.0);
+    std::cout << "planes loaded" << std::endl;
     Object amogus("amongus.obj", "pierre.tga", glm::vec3(0, 0, 0), 1.0);
     std::cout << "amongus 1 loaded" << std::endl;
     /*    Object amogus_center("amongus.obj", "pierre_sang.tga", glm::vec3(0,
        30, 0), 1.0); std::cout << "amongus 2 loaded" << std::endl;
     */
     std::shared_ptr<Portal> first_portal = std::make_shared<Portal>(
-        Portal(4, 8, glm::vec3(5, -5, 2), 0.0, glm::vec3(0, 1, 0)));
+        Portal(4, 8, glm::vec3(5, 0, 2), 180.0, glm::vec3(0, 1, 0)));
     std::shared_ptr<Portal> second_portal = std::make_shared<Portal>(
-        Portal(4, 8, glm::vec3(-5, -5, 2), 45.0, glm::vec3(0, 1, 0)));
+        Portal(4, 8, glm::vec3(-5, 40, 2), 45.0, glm::vec3(0, 1, 0)));
 
     first_portal->set_destination(second_portal);
     second_portal->set_destination(first_portal);
@@ -30,6 +31,7 @@ int main(int argc, char *argv[])
     scene->add_portals(second_portal);
     scene->add_player(player);
     scene->add_object(std::make_shared<Object>(plane));
+    scene->add_object(std::make_shared<Object>(plane_2));
     scene->add_object(std::make_shared<Object>(amogus));
     // scene->add_object(std::make_shared<Object>(amogus_center));
 
