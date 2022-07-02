@@ -76,17 +76,6 @@ glm::mat4 portal_view(glm::mat4 orig_view, std::shared_ptr<Portal> src,
     return portal_cam;
 }
 
-bool portal_intersection(std::shared_ptr<Portal> portal,
-                         std::shared_ptr<Player> player)
-{
-    float dist = glm::distance(player->get_position(), portal->get_position());
-    if (dist < 2.5)
-    {
-        return true;
-    }
-    return false;
-}
-
 /**
  * Checks whether the line defined by two points la and lb intersects
  * the portal.
@@ -150,7 +139,6 @@ void Scene::update_physics(const float deltaTime,
         glm::vec4 la = glm::inverse(prev_pos) * glm::vec4(0.0, 0.0, 0.0, 1.0);
         glm::vec4 lb = glm::inverse(player->get_model_view())
             * glm::vec4(0.0, 0.0, 0.0, 1.0);
-        // if (portal_intersection(portal, player))
         if (portal_intersection(la, lb, portal))
         {
             std::cout << "zioup" << std::endl;
