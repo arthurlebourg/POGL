@@ -149,7 +149,7 @@ void Scene::update_physics(const float deltaTime,
     {
         glm::vec4 la = glm::inverse(prev_pos) * glm::vec4(0.0, 0.0, 0.0, 1.0);
         glm::vec4 lb = glm::inverse(player->get_model_view())
-            * glm::vec4(player->get_direction(), 1.0);
+            * glm::vec4(0.0, 0.0, 0.0, 1.0);
         // if (portal_intersection(portal, player))
         if (portal_intersection(la, lb, portal))
         {
@@ -157,10 +157,12 @@ void Scene::update_physics(const float deltaTime,
 
             glm::mat4 new_trans_glm = portal_view(
                 player->get_model_view(), portal, portal->get_destination());
+            
+            glm::mat4 new_world_perception = glm::inverse(new_trans_glm);
 
             glm::vec3 pos =
-                glm::vec3(-new_trans_glm[3][0], -new_trans_glm[3][1],
-                          -new_trans_glm[3][2]);
+                glm::vec3(new_world_perception[3][0], new_world_perception[3][1],
+                          new_world_perception[3][2]);
 
             btTransform new_trans_bt;
             player_body->clearForces();
@@ -170,13 +172,11 @@ void Scene::update_physics(const float deltaTime,
             player_body->getMotionState()->setWorldTransform(new_trans_bt);
             std::cout << pos.x << ", " << pos.y << ", " << pos.z << std::endl;
 
-            // player->set_position(pos.x, pos.y, pos.z);
-            player->set_position(new_trans_bt.getOrigin().getX(),
-                                 new_trans_bt.getOrigin().getY(),
-                                 new_trans_bt.getOrigin().getZ());
+            player->set_position(pos.x, pos.y, pos.z);
+            
 
             /*glm::vec3 right = glm::vec3(
-                 new_trans_glm[0][0], new_trans_glm[0][1], new_trans_glm[0][2]);
+                 new_trans_glm[0][0], newzz_trans_glm[0][1], new_trans_glm[0][2]);
              glm::vec3 up = glm::vec3(new_trans_glm[1][0], new_trans_glm[1][1],
                                       new_trans_glm[1][2]);
 
