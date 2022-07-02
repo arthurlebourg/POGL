@@ -18,10 +18,18 @@ int main(int argc, char *argv[])
     std::shared_ptr<Portal> first_portal = std::make_shared<Portal>(
         Portal(4, 8, glm::vec3(5, 0, 2), 180.0, glm::vec3(0, 1, 0)));
     std::shared_ptr<Portal> second_portal = std::make_shared<Portal>(
-        Portal(4, 8, glm::vec3(-5, 40, 2), 45.0, glm::vec3(0, 1, 0)));
+        Portal(4, 8, glm::vec3(-5, 40, 2), 180.0, glm::vec3(0, 1, 0)));
+
+    std::shared_ptr<Portal> first_floor_portal = std::make_shared<Portal>(
+        Portal(4, 8, glm::vec3(20, 0, 20), 0.0, glm::vec3(0, 1, 0)));
+    std::shared_ptr<Portal> second_floor_portal = std::make_shared<Portal>(
+        Portal(4, 8, glm::vec3(20, 40, 20), 90.0, glm::vec3(0, 1, 0)));
 
     first_portal->set_destination(second_portal);
     second_portal->set_destination(first_portal);
+
+    first_floor_portal->set_destination(second_floor_portal);
+    second_floor_portal->set_destination(first_floor_portal);
 
     auto player =
         std::make_shared<Player>(glm::vec3(0, 0, 3.0), glm::vec3(0, 0, -1));
@@ -29,7 +37,11 @@ int main(int argc, char *argv[])
     auto scene = std::make_shared<Scene>(glm::vec3(-10.0, -10.0, -10.0));
     scene->add_portals(first_portal);
     scene->add_portals(second_portal);
+    scene->add_portals(first_floor_portal);
+    scene->add_portals(second_floor_portal);
+
     scene->add_player(player);
+
     scene->add_object(std::make_shared<Object>(plane));
     scene->add_object(std::make_shared<Object>(plane_2));
     scene->add_object(std::make_shared<Object>(amogus));
