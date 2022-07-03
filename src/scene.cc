@@ -1,4 +1,5 @@
 #include "scene.hh"
+
 #include <cmath>
 
 Scene::Scene(const glm::vec3 light)
@@ -124,14 +125,16 @@ bool portal_intersection(glm::vec4 la, glm::vec4 lb,
 
 float get_saclingFactor(glm::mat4 m)
 {
-    auto scalingFacotr = sqrt(m[0][0] * m[0][0] + m[0][1] * m[0][1] + m[0][2] * m[0][2]);
+    auto scalingFacotr =
+        sqrt(m[0][0] * m[0][0] + m[0][1] * m[0][1] + m[0][2] * m[0][2]);
     return scalingFacotr;
 }
 
-glm::mat3 get_rotationM(float scalingFacotr, glm::mat4 m) {
-    auto res = (1.0f / scalingFacotr) * glm::mat3(m[0][0], m[0][1], m[0][2],
-                                                 m[1][0], m[1][1], m[1][2],
-                                                 m[2][0], m[2][1], m[2][2]);
+glm::mat3 get_rotationM(float scalingFacotr, glm::mat4 m)
+{
+    auto res = (1.0f / scalingFacotr)
+        * glm::mat3(m[0][0], m[0][1], m[0][2], m[1][0], m[1][1], m[1][2],
+                    m[2][0], m[2][1], m[2][2]);
     return glm::inverse(res);
 }
 
@@ -140,7 +143,7 @@ void Scene::update_physics(const float deltaTime,
 {
     glm::mat4 prev_pos = player->get_model_view();
     // std::cout << "begin: " << player->get_yaw() << std::endl;
-    
+
     dynamicsWorld_->stepSimulation(deltaTime * 0.1f / 60.0f, 1);
     btTransform trans;
     trans.setIdentity();
@@ -157,9 +160,12 @@ void Scene::update_physics(const float deltaTime,
 
         if (portal_intersection(la, lb, portal))
         {
-            std::cout << "**************************in portal, before set: " << player->get_yaw() << std::endl;
+            std::cout << "**************************in portal, before set: "
+                      << player->get_yaw() << std::endl;
 
-            std::cout << "before dir: " << player->get_direction().x << " " << player->get_direction().y << " " << player->get_direction().z << std::endl;
+            std::cout << "before dir: " << player->get_direction().x << " "
+                      << player->get_direction().y << " "
+                      << player->get_direction().z << std::endl;
 
             glm::mat4 new_trans_glm = portal_view(
                 player->get_model_view(), portal, portal->get_destination());
@@ -169,7 +175,6 @@ void Scene::update_physics(const float deltaTime,
                                       new_world_perception[3][1],
                                       new_world_perception[3][2]);
 
-
             btTransform new_trans_bt;
             new_trans_bt.setIdentity();
             new_trans_bt.setOrigin(btVector3(pos.x, pos.y, pos.z));
@@ -178,13 +183,15 @@ void Scene::update_physics(const float deltaTime,
 
             player->set_position(pos.x, pos.y, pos.z);
 
-            auto backward = glm::vec3(new_world_perception[2][0], new_world_perception[2][1], new_world_perception[2][2]);
+            auto backward = glm::vec3(new_world_perception[2][0],
+                                      new_world_perception[2][1],
+                                      new_world_perception[2][2]);
             player->set_direction(-backward);
             player->normalize_direction();
-            
-            auto new_yaw = acos(player->get_direction().x / cos(glm::radians(player->get_pitch())));
+
+            auto new_yaw = acos(player->get_direction().x
+                                / cos(glm::radians(player->get_pitch())));
             player->set_yaw(new_yaw * 180 / M_PI);
-            
         }
     }
 

@@ -98,6 +98,7 @@ void display()
     lastFrame = currentFrame;
 
     p->get_scene()->update_physics(deltaTime, p->get_player());
+    p->get_player()->set_speed(key_states['a']);
     p->get_player()->move(key_states['z'] - key_states['s'],
                           key_states['d'] - key_states['q'], deltaTime);
     p->update_position();
