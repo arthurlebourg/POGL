@@ -16,6 +16,7 @@ public:
 
     float get_pitch();
     void add_pitch(const float f);
+    void set_pitch(const float f);
 
     glm::vec3 get_position();
     void set_position(float x, float y, float z);
