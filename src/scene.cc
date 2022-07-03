@@ -1,4 +1,5 @@
 #include "scene.hh"
+#include <cmath>
 
 Scene::Scene(const glm::vec3 light)
     : light_(light)
@@ -214,6 +215,12 @@ void Scene::update_physics(const float deltaTime,
             
             // player->set_direction(glm::normalize(glm::vec3(new_trans_glm[2])));
             
+
+        //       float dir_x = cos(glm::radians(p->get_player()->get_yaw()))
+        // * cos(glm::radians(p->get_player()->get_pitch()));
+
+            auto new_yaw = acos(player->get_direction().x / cos(player->get_pitch()));
+            player->set_yaw(new_yaw * 180 / M_PI);
 
             
             // // std::cout << "========================================second position: " << player->get_yaw() << std::endl;

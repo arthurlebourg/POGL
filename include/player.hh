@@ -12,6 +12,7 @@ public:
 
     float get_yaw();
     void add_yaw(const float f);
+    void set_yaw(const float f);
 
     float get_pitch();
     void add_pitch(const float f);
