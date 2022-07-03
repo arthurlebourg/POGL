@@ -183,9 +183,13 @@ void Scene::update_physics(const float deltaTime,
 
             player->set_position(pos.x, pos.y, pos.z);
 
+<<<<<<< Updated upstream
             auto backward = glm::vec3(new_world_perception[2][0],
                                       new_world_perception[2][1],
                                       new_world_perception[2][2]);
+=======
+            auto backward = glm::vec3(new_world_perception[0][2], new_world_perception[1][2], new_world_perception[2][2]);
+>>>>>>> Stashed changes
             player->set_direction(-backward);
             player->normalize_direction();
 
