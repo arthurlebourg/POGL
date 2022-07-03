@@ -12,10 +12,14 @@ Portal::Portal(const float sizex, const float sizey, const glm::vec3 position,
         glm::vec3(sizex, -sizey, 0),  glm::vec3(sizex, sizey, 0),
     };
 
+<<<<<<< Updated upstream
     normale_sortant_ =
         get_normale(vertices_[0], vertices_[1], vertices_[2], angle);
     std::cout << "!!!!!!!!!!!!!!!!!!! normale: " << normale_sortant_.x << " "
               << normale_sortant_.y << " " << normale_sortant_.z << std::endl;
+=======
+    normale_sortant_ = get_normale(vertices_[0], vertices_[1], vertices_[2], angle);
+>>>>>>> Stashed changes
     unsigned int verts; // VBO
     glGenBuffers(1, &verts);
     glGenVertexArrays(1, &VAO_);
