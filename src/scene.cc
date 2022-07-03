@@ -148,23 +148,15 @@ void Scene::update_physics(const float deltaTime,
     player_body->getMotionState()->getWorldTransform(trans);
     player->set_position(trans.getOrigin().getX(), trans.getOrigin().getY(),
                          trans.getOrigin().getZ());
-    // std::cout << "before position: " << player->get_position().x << " " << player->get_position().y << " " << player->get_position().z << std::endl;
-    // std::cout << "before dir: " << player->get_direction().x << " " << player->get_direction().y << " " << player->get_direction().z << std::endl;
 
-    // bool prev_tp = false;
-    // auto i = 0;
     for (auto portal : portals_)
     {
-        // i++;
-        
         glm::vec4 la = glm::inverse(prev_pos) * glm::vec4(0.0, 0.0, 0.0, 1.0);
         glm::vec4 lb = glm::inverse(player->get_model_view())
             * glm::vec4(0.0, 0.0, 0.0, 1);
-            // * glm::vec4(player->get_direction().x, 0.0, player->get_direction().z, 1.0);
-        // if (portal_intersection(la, lb, portal) && prev_tp==false)
+
         if (portal_intersection(la, lb, portal))
         {
-            // prev_tp = true;
             std::cout << "**************************in portal, before set: " << player->get_yaw() << std::endl;
 
             std::cout << "before dir: " << player->get_direction().x << " " << player->get_direction().y << " " << player->get_direction().z << std::endl;
@@ -172,10 +164,6 @@ void Scene::update_physics(const float deltaTime,
             glm::mat4 new_trans_glm = portal_view(
                 player->get_model_view(), portal, portal->get_destination());
 
-            // glm::vec3 pos = glm::vec3(-new_trans_glm[3][0],
-            //                           -new_trans_glm[3][1],
-            //                           -new_trans_glm[3][2]);
-            
             glm::mat4 new_world_perception = glm::inverse(new_trans_glm);
             glm::vec3 pos = glm::vec3(new_world_perception[3][0],
                                       new_world_perception[3][1],
@@ -187,53 +175,18 @@ void Scene::update_physics(const float deltaTime,
             new_trans_bt.setOrigin(btVector3(pos.x, pos.y, pos.z));
             player_body->setWorldTransform(new_trans_bt);
             player_body->getMotionState()->setWorldTransform(new_trans_bt);
-            // std::cout << pos.x << ", " << pos.y << ", " << pos.z << std::endl;
 
-            // std::cout << "==============================position in if: " << player->get_position().x << " " << player->get_position().y << " " << player->get_position().z << std::endl;
             player->set_position(pos.x, pos.y, pos.z);
-            // // std::cout << "new position: " << player->get_position().x << " " << player->get_position().y << " " << player->get_position().z << std::endl;
 
-            // glm::mat3 rotationM = get_rotationM(get_saclingFactor(new_trans_glm), new_trans_glm);
-            // // std::cout << "==============================rotation: " << rotationM[0][0] << " " << rotationM[0][1] << " " << rotationM[0][2] << std::endl;
-            // auto new_dir = rotationM * player->get_direction();
-            // // new_dir = glm::vec3(new_dir.x, player->get_direction().y, new_dir.z);
-            
-            // player->set_direction(new_dir);
-        
-            // // player->set_direction(glm::vec3(-player->get_direction().x, player->get_direction().y,-player->get_direction().z));
-            
-            
-            // glm::vec3 right = glm::vec3(
-            //     new_world_perception[0][0], new_world_perception[0][1], new_world_perception[0][2]);
-            // glm::vec3 up = glm::vec3(new_world_perception[1][0], new_world_perception[1][1],
-            //                          new_world_perception[1][2]);
-            // player->set_direction(glm::cross(up, right));
-            auto backward = glm::vec3(new_trans_glm[0][2], new_trans_glm[1][2], new_trans_glm[2][2]);
-            backward.x = -backward.x;
-            backward.y = -backward.y;
-            backward.z = -backward.z;
-            player->set_direction(backward);
+            auto backward = glm::vec3(new_world_perception[2][0], new_world_perception[2][1], new_world_perception[2][2]);
+            player->set_direction(-backward);
             player->normalize_direction();
             
-            // player->set_direction(glm::normalize(glm::vec3(new_trans_glm[2])));
-            
-
-        //       float dir_x = cos(glm::radians(p->get_player()->get_yaw()))
-        // * cos(glm::radians(p->get_player()->get_pitch()));
-
             auto new_yaw = acos(player->get_direction().x / cos(glm::radians(player->get_pitch())));
             player->set_yaw(new_yaw * 180 / M_PI);
-            std::cout << "**************************in portal, after set: " << player->get_yaw() << std::endl;
-
             
-            // // std::cout << "========================================second position: " << player->get_yaw() << std::endl;
-            std::cout << "==========================after tp dir: " << player->get_direction().x << " " << player->get_direction().y << " " << player->get_direction().z << std::endl;
-
         }
-        // std::cout << i << std::endl;
     }
-
-    // prev_tp = false;
 
     for (auto obj : objects_)
     {
