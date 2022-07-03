@@ -35,8 +35,11 @@ void mouse_motion_callback(int x, int y)
     xoffset *= deltaTime * sensitivity;
     yoffset *= deltaTime * sensitivity;
 
+    std::cout << "in mouse, before add: " << p->get_player()->get_yaw() << std::endl;
     p->get_player()->add_yaw(xoffset);
     p->get_player()->add_pitch(yoffset);
+    std::cout << "in mouse, after add: " << p->get_player()->get_yaw() << std::endl;
+
 
     float dir_x = cos(glm::radians(p->get_player()->get_yaw()))
         * cos(glm::radians(p->get_player()->get_pitch()));

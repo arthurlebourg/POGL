@@ -71,6 +71,16 @@ void Player::add_pitch(const float f)
         pitch_ = -89.0f;
 }
 
+void Player::set_pitch(const float f)
+{
+    pitch_ = f;
+
+    if (pitch_ > 89.0f)
+        pitch_ = 89.0f;
+    if (pitch_ < -89.0f)
+        pitch_ = -89.0f;
+}
+
 glm::vec3 Player::get_position()
 {
     return position_;

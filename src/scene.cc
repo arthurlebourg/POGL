@@ -165,6 +165,8 @@ void Scene::update_physics(const float deltaTime,
         if (portal_intersection(la, lb, portal))
         {
             // prev_tp = true;
+            std::cout << "**************************in portal, before set: " << player->get_yaw() << std::endl;
+
             std::cout << "before dir: " << player->get_direction().x << " " << player->get_direction().y << " " << player->get_direction().z << std::endl;
 
             glm::mat4 new_trans_glm = portal_view(
@@ -219,8 +221,9 @@ void Scene::update_physics(const float deltaTime,
         //       float dir_x = cos(glm::radians(p->get_player()->get_yaw()))
         // * cos(glm::radians(p->get_player()->get_pitch()));
 
-            auto new_yaw = acos(player->get_direction().x / cos(player->get_pitch()));
+            auto new_yaw = acos(player->get_direction().x / cos(glm::radians(player->get_pitch())));
             player->set_yaw(new_yaw * 180 / M_PI);
+            std::cout << "**************************in portal, after set: " << player->get_yaw() << std::endl;
 
             
             // // std::cout << "========================================second position: " << player->get_yaw() << std::endl;
