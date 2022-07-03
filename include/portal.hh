@@ -24,6 +24,8 @@ public:
 
     glm::vec3 get_position();
 
+    float get_angle();
+
     glm::vec3 get_rotation();
 
     std::vector<glm::vec3> get_vertices();
@@ -37,6 +39,7 @@ public:
 
 private:
     glm::vec3 position_;
+    float angle_;
     glm::vec3 rotation_;
     glm::mat4 transform_;
     unsigned int VAO_;

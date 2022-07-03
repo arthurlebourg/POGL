@@ -3,6 +3,7 @@
 Portal::Portal(const float sizex, const float sizey, const glm::vec3 position,
                float angle, const glm::vec3 rotation)
     : position_(position)
+    , angle_(angle)
     , rotation_(rotation)
     , transform_(glm::mat4(1.0f))
 {
@@ -12,14 +13,9 @@ Portal::Portal(const float sizex, const float sizey, const glm::vec3 position,
         glm::vec3(sizex, -sizey, 0),  glm::vec3(sizex, sizey, 0),
     };
 
-<<<<<<< Updated upstream
     normale_sortant_ =
         get_normale(vertices_[0], vertices_[1], vertices_[2], angle);
-    std::cout << "!!!!!!!!!!!!!!!!!!! normale: " << normale_sortant_.x << " "
-              << normale_sortant_.y << " " << normale_sortant_.z << std::endl;
-=======
-    normale_sortant_ = get_normale(vertices_[0], vertices_[1], vertices_[2], angle);
->>>>>>> Stashed changes
+
     unsigned int verts; // VBO
     glGenBuffers(1, &verts);
     glGenVertexArrays(1, &VAO_);
@@ -62,6 +58,11 @@ glm::mat4 Portal::get_transform()
 glm::vec3 Portal::get_position()
 {
     return position_;
+}
+
+float Portal::get_angle()
+{
+    return angle_;
 }
 
 glm::vec3 Portal::get_rotation()

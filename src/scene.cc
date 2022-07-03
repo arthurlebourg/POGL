@@ -163,9 +163,7 @@ void Scene::update_physics(const float deltaTime,
             std::cout << "**************************in portal, before set: "
                       << player->get_yaw() << std::endl;
 
-            std::cout << "before dir: " << player->get_direction().x << " "
-                      << player->get_direction().y << " "
-                      << player->get_direction().z << std::endl;
+
 
             glm::mat4 new_trans_glm = portal_view(
                 player->get_model_view(), portal, portal->get_destination());
@@ -183,19 +181,21 @@ void Scene::update_physics(const float deltaTime,
 
             player->set_position(pos.x, pos.y, pos.z);
 
-<<<<<<< Updated upstream
-            auto backward = glm::vec3(new_world_perception[2][0],
-                                      new_world_perception[2][1],
-                                      new_world_perception[2][2]);
-=======
-            auto backward = glm::vec3(new_world_perception[0][2], new_world_perception[1][2], new_world_perception[2][2]);
->>>>>>> Stashed changes
-            player->set_direction(-backward);
-            player->normalize_direction();
+            std::cout << "position: " << player->get_direction().x << " "
+                      << player->get_direction().y << " "
+                      << player->get_direction().z << std::endl;
 
-            auto new_yaw = acos(player->get_direction().x
-                                / cos(glm::radians(player->get_pitch())));
-            player->set_yaw(new_yaw * 180 / M_PI);
+            if (abs(portal->get_angle() - portal->get_destination()->get_angle()) != 180) {
+                auto backward = glm::vec3(new_world_perception[2][0],
+                                        new_world_perception[2][1],
+                                        new_world_perception[2][2]);
+                player->set_direction(-backward);
+                player->normalize_direction();
+
+                auto new_yaw = acos(player->get_direction().x
+                                    / cos(glm::radians(player->get_pitch())));
+                player->set_yaw(new_yaw * 180 / M_PI);
+            }
         }
     }
 
