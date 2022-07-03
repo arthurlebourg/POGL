@@ -208,5 +208,7 @@ glm::vec3 get_normale(const glm::vec3 point_src, const glm::vec3 point_dest1, co
 {
     auto vec1 = get_vector(point_src, point_dest1, angle);
     auto vec2 = get_vector(point_src, point_dest2, angle);
-    return glm::normalize(glm::cross(vec1, vec2));
+    auto res = glm::normalize(glm::cross(vec1, vec2));
+    res.x = -res.x;
+    return res; 
 }
