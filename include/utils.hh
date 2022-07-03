@@ -40,5 +40,7 @@ btMatrix3x3 glmToBullet(const glm::mat3 &m);
 
 btTransform glmToBullet(const glm::mat4 &m);
 
-glm::vec3 get_vector(const glm::vec3 point_src, const glm::vec3 point_dest, float angle);
-glm::vec3 get_normale(const glm::vec3 point_src, const glm::vec3 point_dest1, const glm::vec3 point_dest2, float angle);
+glm::vec3 get_vector(const glm::vec3 point_src, const glm::vec3 point_dest,
+                     float angle);
+glm::vec3 get_normale(const glm::vec3 point_src, const glm::vec3 point_dest1,
+                      const glm::vec3 point_dest2, float angle);

@@ -8,7 +8,9 @@ Player::Player(const glm::vec3 position, const glm::vec3 direction)
     , up_(glm::vec3(0, 1, 0))
     , projection_(glm::frustum(-0.01, 0.01, -0.01, 0.01, 0.01, 500.0))
     , speed_(0.8f)
-    , colShape_(new btBoxShape(btVector3(5.0, 10.0, 5.0)))
+    , walk_(speed_)
+    , sprint_(4 * speed_)
+    , colShape_(new btBoxShape(btVector3(1.0, 5.0, 1.0)))
 {
     /// Create Dynamic Objects
     btTransform startTransform;
@@ -61,6 +63,7 @@ float Player::get_pitch()
 {
     return pitch_;
 }
+
 void Player::add_pitch(const float f)
 {
     pitch_ += f;
@@ -85,6 +88,12 @@ glm::vec3 Player::get_position()
 {
     return position_;
 }
+
+void Player::set_speed(bool sprint)
+{
+    speed_ = sprint ? sprint_ : walk_;
+}
+
 void Player::set_position(float x, float y, float z)
 {
     position_.x = x;

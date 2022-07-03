@@ -18,6 +18,8 @@ public:
     void add_pitch(const float f);
     void set_pitch(const float f);
 
+    void set_speed(bool sprint);
+
     glm::vec3 get_position();
     void set_position(float x, float y, float z);
 
@@ -45,6 +47,9 @@ private:
     glm::mat4 projection_;
 
     float speed_;
+
+    float walk_;
+    float sprint_;
 
     btCollisionShape *colShape_;
     btRigidBody *body_;

@@ -12,8 +12,10 @@ Portal::Portal(const float sizex, const float sizey, const glm::vec3 position,
         glm::vec3(sizex, -sizey, 0),  glm::vec3(sizex, sizey, 0),
     };
 
-    normale_sortant_ = get_normale(vertices_[0], vertices_[1], vertices_[2], angle);
-    std::cout << "!!!!!!!!!!!!!!!!!!! normale: " << normale_sortant_.x << " "<<normale_sortant_.y << " " << normale_sortant_.z <<std::endl;
+    normale_sortant_ =
+        get_normale(vertices_[0], vertices_[1], vertices_[2], angle);
+    std::cout << "!!!!!!!!!!!!!!!!!!! normale: " << normale_sortant_.x << " "
+              << normale_sortant_.y << " " << normale_sortant_.z << std::endl;
     unsigned int verts; // VBO
     glGenBuffers(1, &verts);
     glGenVertexArrays(1, &VAO_);
@@ -33,7 +35,8 @@ Portal::Portal(const float sizex, const float sizey, const glm::vec3 position,
     glEnableVertexAttribArray(0);
 
     TEST_OPENGL_ERROR();
-    transform_ = glm::translate(glm::mat4(1), glm::vec3(1, 0, 0)) * glm::translate(transform_, position_)
+    transform_ = glm::translate(glm::mat4(1), glm::vec3(1, 0, 0))
+        * glm::translate(transform_, position_)
         * glm::rotate(glm::mat4(1), glm::radians(angle), rotation);
 };
 
