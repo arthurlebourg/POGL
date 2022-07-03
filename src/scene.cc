@@ -148,7 +148,7 @@ void Scene::update_physics(const float deltaTime,
     player->set_position(trans.getOrigin().getX(), trans.getOrigin().getY(),
                          trans.getOrigin().getZ());
     // std::cout << "before position: " << player->get_position().x << " " << player->get_position().y << " " << player->get_position().z << std::endl;
-    std::cout << "before dir: " << player->get_direction().x << " " << player->get_direction().y << " " << player->get_direction().z << std::endl;
+    // std::cout << "before dir: " << player->get_direction().x << " " << player->get_direction().y << " " << player->get_direction().z << std::endl;
 
     // bool prev_tp = false;
     // auto i = 0;
@@ -164,7 +164,7 @@ void Scene::update_physics(const float deltaTime,
         if (portal_intersection(la, lb, portal))
         {
             // prev_tp = true;
-            std::cout << "zioup" << std::endl;
+            std::cout << "before dir: " << player->get_direction().x << " " << player->get_direction().y << " " << player->get_direction().z << std::endl;
 
             glm::mat4 new_trans_glm = portal_view(
                 player->get_model_view(), portal, portal->get_destination());
@@ -188,18 +188,35 @@ void Scene::update_physics(const float deltaTime,
 
             // std::cout << "==============================position in if: " << player->get_position().x << " " << player->get_position().y << " " << player->get_position().z << std::endl;
             player->set_position(pos.x, pos.y, pos.z);
-            // std::cout << "new position: " << player->get_position().x << " " << player->get_position().y << " " << player->get_position().z << std::endl;
+            // // std::cout << "new position: " << player->get_position().x << " " << player->get_position().y << " " << player->get_position().z << std::endl;
 
-            glm::mat3 rotationM = get_rotationM(get_saclingFactor(new_trans_glm), new_trans_glm);
-            // std::cout << "==============================rotation: " << rotationM[0][0] << " " << rotationM[0][1] << " " << rotationM[0][2] << std::endl;
-            auto new_dir = rotationM * player->get_direction();
-            // new_dir = glm::vec3(new_dir.x, player->get_direction().y, new_dir.z);
+            // glm::mat3 rotationM = get_rotationM(get_saclingFactor(new_trans_glm), new_trans_glm);
+            // // std::cout << "==============================rotation: " << rotationM[0][0] << " " << rotationM[0][1] << " " << rotationM[0][2] << std::endl;
+            // auto new_dir = rotationM * player->get_direction();
+            // // new_dir = glm::vec3(new_dir.x, player->get_direction().y, new_dir.z);
             
-            player->set_direction(new_dir);
+            // player->set_direction(new_dir);
         
-            // player->set_direction(glm::vec3(-player->get_direction().x, player->get_direction().y,-player->get_direction().z));
+            // // player->set_direction(glm::vec3(-player->get_direction().x, player->get_direction().y,-player->get_direction().z));
             
-            // std::cout << "========================================second position: " << player->get_yaw() << std::endl;
+            
+            // glm::vec3 right = glm::vec3(
+            //     new_world_perception[0][0], new_world_perception[0][1], new_world_perception[0][2]);
+            // glm::vec3 up = glm::vec3(new_world_perception[1][0], new_world_perception[1][1],
+            //                          new_world_perception[1][2]);
+            // player->set_direction(glm::cross(up, right));
+            auto backward = glm::vec3(new_trans_glm[0][2], new_trans_glm[1][2], new_trans_glm[2][2]);
+            backward.x = -backward.x;
+            backward.y = -backward.y;
+            backward.z = -backward.z;
+            player->set_direction(backward);
+            player->normalize_direction();
+            
+            // player->set_direction(glm::normalize(glm::vec3(new_trans_glm[2])));
+            
+
+            
+            // // std::cout << "========================================second position: " << player->get_yaw() << std::endl;
             std::cout << "==========================after tp dir: " << player->get_direction().x << " " << player->get_direction().y << " " << player->get_direction().z << std::endl;
 
         }
