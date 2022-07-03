@@ -43,6 +43,8 @@ private:
     unsigned int triangles_number_;
 
     std::vector<glm::vec3> vertices_;
+    
+    glm::vec3 normale_sortant_;
 
     std::shared_ptr<Portal> destination_;
 };
