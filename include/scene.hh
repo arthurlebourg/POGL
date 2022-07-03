@@ -44,5 +44,5 @@ private:
 
     btDiscreteDynamicsWorld *dynamicsWorld_;
 
-    unsigned int max_recursion_level_ = 1;
+    unsigned int max_recursion_level_ = 5;
 };

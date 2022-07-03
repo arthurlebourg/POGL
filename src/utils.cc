@@ -192,3 +192,21 @@ btTransform glmToBullet(const glm::mat4 &m)
     return btTransform(glmToBullet(m3),
                        glmToBullet(glm::vec3(m[3][0], m[3][1], m[3][2])));
 }
+
+glm::vec3 get_vector(const glm::vec3 point_src, const glm::vec3 point_dest, float angle)
+{
+    angle = glm::radians(angle);
+    auto vec = point_dest - point_src;
+    // rotation around y
+    auto rotationM = glm::mat3(cos(angle), 0, sin(angle),
+                                0, 1, 0,
+                                -sin(angle), 0, cos(angle));
+    return rotationM * vec;
+}
+
+glm::vec3 get_normale(const glm::vec3 point_src, const glm::vec3 point_dest1, const glm::vec3 point_dest2, float angle)
+{
+    auto vec1 = get_vector(point_src, point_dest1, angle);
+    auto vec2 = get_vector(point_src, point_dest2, angle);
+    return glm::normalize(glm::cross(vec1, vec2));
+}

@@ -121,11 +121,25 @@ bool portal_intersection(glm::vec4 la, glm::vec4 lb,
     return false;
 }
 
+// float get_saclingFactor(glm::mat4 m)
+// {
+//     auto scalingFacotr = sqrt(m[0][0] * m[0][0] + m[0][1] * m[0][1] + m[0][2] * m[0][2]);
+//     return scalingFacotr;
+// }
+
+// glm::mat3 get_rotationM(float scalingFacotr, glm::mat4 m) {
+//     auto res = (1.0f / scalingFacotr) * glm::mat3(m[0][0], m[0][1], m[0][2],
+//                                                  m[1][0], m[1][1], m[1][2],
+//                                                  m[2][0], m[2][1], m[2][2]);
+//     return glm::inverse(res);
+// }
+
 void Scene::update_physics(const float deltaTime,
                            std::shared_ptr<Player> player)
 {
     glm::mat4 prev_pos = player->get_model_view();
-
+    // std::cout << "begin: " << player->get_yaw() << std::endl;
+    
     dynamicsWorld_->stepSimulation(deltaTime * 0.1f / 60.0f, 1);
     btTransform trans;
     trans.setIdentity();
@@ -133,36 +147,66 @@ void Scene::update_physics(const float deltaTime,
     player_body->getMotionState()->getWorldTransform(trans);
     player->set_position(trans.getOrigin().getX(), trans.getOrigin().getY(),
                          trans.getOrigin().getZ());
+    // std::cout << "before position: " << player->get_position().x << " " << player->get_position().y << " " << player->get_position().z << std::endl;
+    std::cout << "before dir: " << player->get_direction().x << " " << player->get_direction().y << " " << player->get_direction().z << std::endl;
 
+    // bool prev_tp = false;
+    // auto i = 0;
     for (auto portal : portals_)
     {
+        // i++;
+        
         glm::vec4 la = glm::inverse(prev_pos) * glm::vec4(0.0, 0.0, 0.0, 1.0);
         glm::vec4 lb = glm::inverse(player->get_model_view())
-            * glm::vec4(0.0, 0.0, 0.0, 1.0);
+            * glm::vec4(0.0, 0.0, 0.0, 1);
+            // * glm::vec4(player->get_direction().x, 0.0, player->get_direction().z, 1.0);
+        // if (portal_intersection(la, lb, portal) && prev_tp==false)
         if (portal_intersection(la, lb, portal))
         {
+            // prev_tp = true;
             std::cout << "zioup" << std::endl;
 
             glm::mat4 new_trans_glm = portal_view(
                 player->get_model_view(), portal, portal->get_destination());
 
+            // glm::vec3 pos = glm::vec3(-new_trans_glm[3][0],
+            //                           -new_trans_glm[3][1],
+            //                           -new_trans_glm[3][2]);
+            
             glm::mat4 new_world_perception = glm::inverse(new_trans_glm);
-
             glm::vec3 pos = glm::vec3(new_world_perception[3][0],
                                       new_world_perception[3][1],
                                       new_world_perception[3][2]);
 
+
             btTransform new_trans_bt;
-            // player_body->clearForces();
             new_trans_bt.setIdentity();
             new_trans_bt.setOrigin(btVector3(pos.x, pos.y, pos.z));
             player_body->setWorldTransform(new_trans_bt);
             player_body->getMotionState()->setWorldTransform(new_trans_bt);
-            std::cout << pos.x << ", " << pos.y << ", " << pos.z << std::endl;
+            // std::cout << pos.x << ", " << pos.y << ", " << pos.z << std::endl;
 
+            // std::cout << "==============================position in if: " << player->get_position().x << " " << player->get_position().y << " " << player->get_position().z << std::endl;
             player->set_position(pos.x, pos.y, pos.z);
+            // std::cout << "new position: " << player->get_position().x << " " << player->get_position().y << " " << player->get_position().z << std::endl;
+
+            // glm::mat3 rotationM = get_rotationM(get_saclingFactor(new_world_perception), new_world_perception);
+            // std::cout << "==============================rotation: " << rotationM[0][0] << " " << rotationM[0][1] << " " << rotationM[0][2] << std::endl;
+            // auto new_dir = rotationM * player->get_direction();
+            // new_dir = glm::vec3(new_dir.x, player->get_direction().y, new_dir.z);
+            
+            // player->set_direction(new_dir);
+        
+            // player->set_direction(glm::vec3(-player->get_direction().x, player->get_direction().y,-player->get_direction().z));
+            
+            // std::cout << "========================================second position: " << player->get_yaw() << std::endl;
+            std::cout << "==========================after tp dir: " << player->get_direction().x << " " << player->get_direction().y << " " << player->get_direction().z << std::endl;
+
         }
+        // std::cout << i << std::endl;
     }
+
+    // prev_tp = false;
 
     for (auto obj : objects_)
     {
