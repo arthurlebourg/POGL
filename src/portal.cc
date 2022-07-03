@@ -15,7 +15,6 @@ Portal::Portal(const float sizex, const float sizey, const glm::vec3 position,
 
     normale_sortant_ =
         get_normale(vertices_[0], vertices_[1], vertices_[2], angle);
-
     unsigned int verts; // VBO
     glGenBuffers(1, &verts);
     glGenVertexArrays(1, &VAO_);

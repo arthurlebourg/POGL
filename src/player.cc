@@ -135,17 +135,19 @@ btRigidBody *Player::get_body()
     return body_;
 }
 
-glm::vec3 apply_new_base(glm::vec3 direction, glm::vec3 vec)
+float calculate_angleRotX(glm::vec3 direction)
 {
-    glm::vec3 new_dir = glm::normalize(direction);
-    return glm::vec3(new_dir.x * vec.x, 0, new_dir.z * vec.z);
+    auto direction_along_z = glm::vec3(direction.x, 0, direction.z);
+    auto norm_dir = sqrt(direction.x * direction.x + direction.y * direction.y + direction.z * direction.z);
+    auto norm_z = sqrt(direction_along_z.x * direction_along_z.x + direction_along_z.y * direction_along_z.y + direction_along_z.z * direction_along_z.z);
+    return acos(glm::dot(direction, direction_along_z)
+           / (norm_dir * norm_z));
 }
 
-float calculate_angleRotY(glm::vec3 direction)
+glm::vec3 apply_rotation(const glm::vec3 direction, const float angle)
 {
-    glm::vec3 direction_along_z = glm::vec3(0, 0, direction.z);
-    return acos(glm::dot(direction, direction_along_z)
-                / (glm::length(direction) * glm::length(direction_along_z)));
+    auto rotation = glm::mat3(1, 0, 0, 0, cos(angle), -sin(angle), 0, sin(angle), cos(angle));
+    return rotation * direction;
 }
 
 void Player::move(const int forward, const int sideward, const float deltaTime)
@@ -153,16 +155,10 @@ void Player::move(const int forward, const int sideward, const float deltaTime)
     body_->activate();
     btVector3 vel = body_->getLinearVelocity();
 
-    // angleRotY = angle(playerLookingDirection,
-    // playerLookingStraightForwardDirection) = angle(direction_,
-    // direction_along_z)
-    auto angleRotY = calculate_angleRotY(direction_);
-
-    // new_position is vector with original base
-    auto new_position = glm::vec3(sin(angleRotY), 0, cos(angleRotY));
-
-    // apply new base which changes its dir and original when player moves
-    auto correctedDir = apply_new_base(direction_, new_position);
+    // angleRotX = angle(playerLookingDirection, playerLookingStraightForwardDirection) = angle(direction_, direction_along_z)
+    auto angleRotX = calculate_angleRotX(direction_);
+    // rotate looking direction to moving direction
+    auto correctedDir = apply_rotation(direction_, angleRotX);
 
     glm::vec3 dir = forward * speed_ * deltaTime * correctedDir
         + sideward * speed_ * deltaTime
