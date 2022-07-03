@@ -121,18 +121,18 @@ bool portal_intersection(glm::vec4 la, glm::vec4 lb,
     return false;
 }
 
-// float get_saclingFactor(glm::mat4 m)
-// {
-//     auto scalingFacotr = sqrt(m[0][0] * m[0][0] + m[0][1] * m[0][1] + m[0][2] * m[0][2]);
-//     return scalingFacotr;
-// }
+float get_saclingFactor(glm::mat4 m)
+{
+    auto scalingFacotr = sqrt(m[0][0] * m[0][0] + m[0][1] * m[0][1] + m[0][2] * m[0][2]);
+    return scalingFacotr;
+}
 
-// glm::mat3 get_rotationM(float scalingFacotr, glm::mat4 m) {
-//     auto res = (1.0f / scalingFacotr) * glm::mat3(m[0][0], m[0][1], m[0][2],
-//                                                  m[1][0], m[1][1], m[1][2],
-//                                                  m[2][0], m[2][1], m[2][2]);
-//     return glm::inverse(res);
-// }
+glm::mat3 get_rotationM(float scalingFacotr, glm::mat4 m) {
+    auto res = (1.0f / scalingFacotr) * glm::mat3(m[0][0], m[0][1], m[0][2],
+                                                 m[1][0], m[1][1], m[1][2],
+                                                 m[2][0], m[2][1], m[2][2]);
+    return glm::inverse(res);
+}
 
 void Scene::update_physics(const float deltaTime,
                            std::shared_ptr<Player> player)
@@ -190,12 +190,12 @@ void Scene::update_physics(const float deltaTime,
             player->set_position(pos.x, pos.y, pos.z);
             // std::cout << "new position: " << player->get_position().x << " " << player->get_position().y << " " << player->get_position().z << std::endl;
 
-            // glm::mat3 rotationM = get_rotationM(get_saclingFactor(new_world_perception), new_world_perception);
+            glm::mat3 rotationM = get_rotationM(get_saclingFactor(new_trans_glm), new_trans_glm);
             // std::cout << "==============================rotation: " << rotationM[0][0] << " " << rotationM[0][1] << " " << rotationM[0][2] << std::endl;
-            // auto new_dir = rotationM * player->get_direction();
+            auto new_dir = rotationM * player->get_direction();
             // new_dir = glm::vec3(new_dir.x, player->get_direction().y, new_dir.z);
             
-            // player->set_direction(new_dir);
+            player->set_direction(new_dir);
         
             // player->set_direction(glm::vec3(-player->get_direction().x, player->get_direction().y,-player->get_direction().z));
             

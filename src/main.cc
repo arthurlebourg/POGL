@@ -16,9 +16,9 @@ int main(int argc, char *argv[])
        30, 0), 1.0); std::cout << "amongus 2 loaded" << std::endl;
     */
     std::shared_ptr<Portal> first_portal = std::make_shared<Portal>(
-        Portal(4, 8, glm::vec3(20, 0, 20), 180.0, glm::vec3(0, 1, 0)));
+        Portal(4, 8, glm::vec3(20, 45, 20), 180.0, glm::vec3(0, 1, 0)));
     std::shared_ptr<Portal> second_portal = std::make_shared<Portal>(
-        Portal(4, 8, glm::vec3(20, 40, 20), 40.0, glm::vec3(0, 1, 0)));
+        Portal(4, 8, glm::vec3(20, 0, 20), 0.0, glm::vec3(0, 1, 0)));
 
     // std::shared_ptr<Portal> first_floor_portal = std::make_shared<Portal>(
     //     Portal(4, 8, glm::vec3(-10, 0, -10), 0.0, glm::vec3(0, 1, 0)));
