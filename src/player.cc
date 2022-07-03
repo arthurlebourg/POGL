@@ -48,6 +48,15 @@ void Player::add_yaw(const float f)
         yaw_ += 360.0f;
 }
 
+void Player::set_yaw(const float f)
+{
+    yaw_ = f;
+    if (yaw_ > 360.0f)
+        yaw_ -= 360.0f;
+    if (yaw_ < -360.0f)
+        yaw_ += 360.0f;
+}
+
 float Player::get_pitch()
 {
     return pitch_;
