@@ -1,5 +1,7 @@
 #pragma once
 
+#include <glm/gtc/matrix_access.hpp>
+#include <glm/gtc/matrix_transform.hpp>
 #include <string>
 
 #include "image.hh"
@@ -24,9 +26,14 @@ public:
 
     glm::vec3 get_rotation();
 
+    std::vector<glm::vec3> get_vertices();
+
     std::shared_ptr<Portal> get_destination();
 
     void set_destination(std::shared_ptr<Portal> portal);
+
+    glm::mat4 clippedProjMat(glm::mat4 const &viewMat,
+                             glm::mat4 const &projMat);
 
 private:
     glm::vec3 position_;
@@ -36,6 +43,8 @@ private:
     unsigned int triangles_number_;
 
     std::vector<glm::vec3> vertices_;
+
+    glm::vec3 normale_sortant_;
 
     std::shared_ptr<Portal> destination_;
 };

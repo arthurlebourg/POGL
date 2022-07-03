@@ -1,5 +1,7 @@
 #include "scene.hh"
 
+#include <cmath>
+
 Scene::Scene(const glm::vec3 light)
     : light_(light)
 {
@@ -58,9 +60,90 @@ btDiscreteDynamicsWorld *Scene::get_dynamic_world()
     return dynamicsWorld_;
 }
 
+glm::mat4 portal_view(glm::mat4 orig_view, std::shared_ptr<Portal> src,
+                      std::shared_ptr<Portal> dst)
+{
+    glm::mat4 mv = orig_view * src->get_transform();
+    glm::mat4 portal_cam =
+        // 3. transformation from source portal to the camera - it's the
+        //    first portal's ModelView matrix:
+        mv
+        // 2. object is front-facing, the camera is facing the other way:
+        * glm::rotate(glm::mat4(1.0), glm::radians(180.0f),
+                      glm::vec3(0.0, 1.0, 0.0))
+        // 1. go the destination portal; using inverse, because camera
+        //    transformations are reversed compared to object
+        //    transformations:
+        * glm::inverse(dst->get_transform());
+    return portal_cam;
+}
+
+/**
+ * Checks whether the line defined by two points la and lb intersects
+ * the portal.
+ */
+bool portal_intersection(glm::vec4 la, glm::vec4 lb,
+                         std::shared_ptr<Portal> portal)
+{
+    if (la != lb)
+    { // camera moved
+      // Check for intersection with each of the portal's 2 front triangles
+        for (int i = 0; i < 2; i++)
+        {
+            // Portal coordinates in world view
+            glm::vec4 p0 = portal->get_transform()
+                * glm::vec4(portal->get_vertices()[i * 3 + 0], 1.0);
+            glm::vec4 p1 = portal->get_transform()
+                * glm::vec4(portal->get_vertices()[i * 3 + 1], 1.0);
+            glm::vec4 p2 = portal->get_transform()
+                * glm::vec4(portal->get_vertices()[i * 3 + 2], 1.0);
+
+            // Solve line-plane intersection using parametric form
+            glm::vec3 tuv =
+                glm::inverse(
+                    glm::mat3(glm::vec3(la.x - lb.x, la.y - lb.y, la.z - lb.z),
+                              glm::vec3(p1.x - p0.x, p1.y - p0.y, p1.z - p0.z),
+                              glm::vec3(p2.x - p0.x, p2.y - p0.y, p2.z - p0.z)))
+                * glm::vec3(la.x - p0.x, la.y - p0.y, la.z - p0.z);
+            float t = tuv.x, u = tuv.y, v = tuv.z;
+
+            // intersection with the plane
+            float lambda = 1e-6;
+            if (t >= 0 - lambda && t <= 1 + lambda)
+            {
+                // intersection with the triangle
+                if (u >= 0 - lambda && u <= 1 + lambda && v >= 0 - lambda
+                    && v <= 1 + lambda && (u + v) <= 1 + lambda)
+                {
+                    return true;
+                }
+            }
+        }
+    }
+    return false;
+}
+
+float get_saclingFactor(glm::mat4 m)
+{
+    auto scalingFacotr =
+        sqrt(m[0][0] * m[0][0] + m[0][1] * m[0][1] + m[0][2] * m[0][2]);
+    return scalingFacotr;
+}
+
+glm::mat3 get_rotationM(float scalingFacotr, glm::mat4 m)
+{
+    auto res = (1.0f / scalingFacotr)
+        * glm::mat3(m[0][0], m[0][1], m[0][2], m[1][0], m[1][1], m[1][2],
+                    m[2][0], m[2][1], m[2][2]);
+    return glm::inverse(res);
+}
+
 void Scene::update_physics(const float deltaTime,
                            std::shared_ptr<Player> player)
 {
+    glm::mat4 prev_pos = player->get_model_view();
+    // std::cout << "begin: " << player->get_yaw() << std::endl;
+
     dynamicsWorld_->stepSimulation(deltaTime * 0.1f / 60.0f, 1);
     btTransform trans;
     trans.setIdentity();
@@ -68,6 +151,54 @@ void Scene::update_physics(const float deltaTime,
     player_body->getMotionState()->getWorldTransform(trans);
     player->set_position(trans.getOrigin().getX(), trans.getOrigin().getY(),
                          trans.getOrigin().getZ());
+
+    for (auto portal : portals_)
+    {
+        glm::vec4 la = glm::inverse(prev_pos) * glm::vec4(0.0, 0.0, 0.0, 1.0);
+        glm::vec4 lb = glm::inverse(player->get_model_view())
+            * glm::vec4(0.0, 0.0, 0.0, 1);
+
+        if (portal_intersection(la, lb, portal))
+        {
+            std::cout << "**************************in portal, before set: "
+                      << player->get_yaw() << std::endl;
+
+            std::cout << "before dir: " << player->get_direction().x << " "
+                      << player->get_direction().y << " "
+                      << player->get_direction().z << std::endl;
+
+            glm::mat4 new_trans_glm = portal_view(
+                player->get_model_view(), portal, portal->get_destination());
+
+            glm::mat4 new_world_perception = glm::inverse(new_trans_glm);
+            glm::vec3 pos = glm::vec3(new_world_perception[3][0],
+                                      new_world_perception[3][1],
+                                      new_world_perception[3][2]);
+
+            btTransform new_trans_bt;
+            new_trans_bt.setIdentity();
+            new_trans_bt.setOrigin(btVector3(pos.x, pos.y, pos.z));
+            player_body->setWorldTransform(new_trans_bt);
+            player_body->getMotionState()->setWorldTransform(new_trans_bt);
+
+            player->set_position(pos.x, pos.y, pos.z);
+
+<<<<<<< Updated upstream
+            auto backward = glm::vec3(new_world_perception[2][0],
+                                      new_world_perception[2][1],
+                                      new_world_perception[2][2]);
+=======
+            auto backward = glm::vec3(new_world_perception[0][2], new_world_perception[1][2], new_world_perception[2][2]);
+>>>>>>> Stashed changes
+            player->set_direction(-backward);
+            player->normalize_direction();
+
+            auto new_yaw = acos(player->get_direction().x
+                                / cos(glm::radians(player->get_pitch())));
+            player->set_yaw(new_yaw * 180 / M_PI);
+        }
+    }
+
     for (auto obj : objects_)
     {
         trans.setIdentity();
@@ -115,24 +246,6 @@ void Scene::render(const unsigned int shader_program,
         glDrawArrays(GL_TRIANGLES, 0, obj->get_triangles_number());
         TEST_OPENGL_ERROR();
     }
-}
-
-glm::mat4 portal_view(glm::mat4 orig_view, std::shared_ptr<Portal> src,
-                      std::shared_ptr<Portal> dst)
-{
-    glm::mat4 mv = orig_view * src->get_transform();
-    glm::mat4 portal_cam =
-        // 3. transformation from source portal to the camera - it's the
-        //    first portal's ModelView matrix:
-        mv
-        // 2. object is front-facing, the camera is facing the other way:
-        * glm::rotate(glm::mat4(1.0), glm::radians(180.0f),
-                      glm::vec3(0.0, 1.0, 0.0))
-        // 1. go the destination portal; using inverse, because camera
-        //    transformations are reversed compared to object
-        //    transformations:
-        * glm::inverse(dst->get_transform());
-    return portal_cam;
 }
 
 void Scene::render_portals(unsigned int shader_program,
@@ -222,6 +335,8 @@ void Scene::render_portals(unsigned int shader_program,
             // use an edited projection matrix to set the near plane to the
             // portal plane drawNonPortals(destView,
             // portal.clippedProjMat(destView, projMat));
+            // render(shader_program, portal->clippedProjMat(destView,
+            // proj_mat), proj_mat);
             render(shader_program, destView, proj_mat);
         }
         else
@@ -229,6 +344,8 @@ void Scene::render_portals(unsigned int shader_program,
             // Recursion case
             // Pass our new view matrix and the clipped projection matrix (see
             // above)
+            // render_portals(shader_program, portal->clippedProjMat(destView,
+            // proj_mat), proj_mat,
             render_portals(shader_program, destView, proj_mat,
                            recursion_level + 1);
         }
