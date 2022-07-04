@@ -34,8 +34,7 @@ Portal::Portal(const float sizex, const float sizey, const glm::vec3 position,
     glEnableVertexAttribArray(0);
 
     TEST_OPENGL_ERROR();
-    transform_ = glm::translate(glm::mat4(1), glm::vec3(1, 0, 0))
-        * glm::translate(transform_, position_)
+    transform_ = glm::translate(transform_, position_)
         * glm::rotate(glm::mat4(1), glm::radians(angle), rotation);
 };
 
@@ -58,6 +57,11 @@ glm::vec3 Portal::get_position()
 {
     return position_;
 }
+
+// glm::vec3 Portal::get_normale()
+// {
+//     return normale_sortant_;
+// }
 
 float Portal::get_angle()
 {

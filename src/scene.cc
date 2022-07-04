@@ -81,24 +81,90 @@ glm::mat4 portal_view(glm::mat4 orig_view, std::shared_ptr<Portal> src,
 glm::mat4 clip_portal(glm::vec3 portal_position, glm::mat4 view_mat, glm::mat4 proj_mat)
 {
     glm::vec4 player_pos = view_mat * glm::vec4(0,0,0,1);
+    // auto px = view_mat[0][0] * portal_position.x + view_mat[0][1] * portal_position.y + view_mat[0][2] * portal_position.z + view_mat[0][3];
+    // auto py = view_mat[1][0] * portal_position.x + view_mat[1][1] * portal_position.y + view_mat[1][2] * portal_position.z + view_mat[1][3];
+    // auto pz = view_mat[2][0] * portal_position.x + view_mat[2][1] * portal_position.y + view_mat[2][2] * portal_position.z + view_mat[2][3];
+    // proj_mat = glm::mat4(px, py, pz, glm::row(proj_mat, 3));
+
     float dist = glm::length(glm::quat(1, 0, 0, 0) * (portal_position - glm::vec3(player_pos.x, player_pos.y, player_pos.z)));
+    // float dist = glm::length((portal_position - glm::vec3(player_pos.x, player_pos.y, player_pos.z)));
+    
     glm::vec4 clipPlane(glm::vec3(0.0f, 0.0f, -1.0f), dist);
     clipPlane = glm::inverse(glm::transpose(view_mat)) * clipPlane;
 
-    if (clipPlane.w > 0.0f)
-        return proj_mat;
+    auto inv_proj = glm::inverse(proj_mat);
 
-    glm::vec4 q = glm::inverse(proj_mat) * glm::vec4(
-            glm::sign(clipPlane.x),
-            glm::sign(clipPlane.y),
-            1.0f,
-            1.0f
+    // Method1: http://www.terathon.com/lengyel/Lengyel-Oblique.pdf
+    // glm::vec4 q = glm::vec4(
+    //         glm::sign(clipPlane.x) * inv_proj[0][0] + inv_proj[3][0],
+    //         glm::sign(clipPlane.y) * inv_proj[1][1] + inv_proj[3][1],
+    //         -1.0f,
+    //         1.0f / dist          // decomment dist = glm::length(portal_position - playerpos)
+    //         );
+
+    // Method2: https://forum.yoyogames.com/index.php?threads/projection-matrix-with-oblique-near-clip-plane.60537/
+    // auto cx = view_mat[0][0] * portal_normale.x + view_mat[0][1] * portal_normale.y + view_mat[0][2] * portal_normale.z;
+    // auto cy = view_mat[1][0] * portal_normale.x + view_mat[1][1] * portal_normale.y + view_mat[1][2] * portal_normale.z;
+    // auto cz = view_mat[2][0] * portal_normale.x + view_mat[2][1] * portal_normale.y + view_mat[2][2] * portal_normale.z;
+    // auto cw = -cx * proj_mat.x - cy * proj_mat.y - cz * proj_mat.z;
+    // auto clipPlane = glm::vec4(cx, cy, cz, cw);
+    glm::vec4 q = glm::vec4(
+            (glm::sign(clipPlane.x) + inv_proj[0][2]) / inv_proj[0][0],
+            (glm::sign(clipPlane.y) * inv_proj[1][2]) / inv_proj[1][1],
+            -1.0f,
+            (1.0f + inv_proj[2][2]) / inv_proj[2][3]
             );
+    auto c = 2 / glm::dot(clipPlane, q);
 
-    glm::vec4 c = clipPlane * (2.0f / (glm::dot(clipPlane, q)));
+    // Method3: https://aras-p.info/texts/obliqueortho.html
+    // glm::vec4 q = inv_proj * glm::vec4(
+    //         glm::sign(clipPlane.x),
+    //         glm::sign(clipPlane.y),
+    //         1.0f,
+    //         1.0f
+    //         );
+    // glm::vec4 c = clipPlane * (2.0f / (glm::dot(clipPlane, q)));
 
-    // third row = clip plane - fourth row
-    return glm::row(proj_mat, 2, c - glm::row(proj_mat, 3));
+    auto res = proj_mat;
+    // Method1: http://www.terathon.com/lengyel/Lengyel-Oblique.pdf
+    // res[2] = (2*glm::dot(proj_mat[3], q) / glm::dot(clipPlane, q)) * (clipPlane - proj_mat[3]);
+
+    // Method2: https://forum.yoyogames.com/index.php?threads/projection-matrix-with-oblique-near-clip-plane.60537/
+    res[2][0] = clipPlane.x * c;
+    res[2][1] = clipPlane.y * c;
+    res[2][2] = clipPlane.z * c;
+    res[2][3] = clipPlane.w * c;
+
+    // Method3: https://aras-p.info/texts/obliqueortho.html
+    // res[2][0] = c.x - res[3][0];
+    // res[2][1] = c.y - res[3][1];
+    // res[2][2] = c.z - res[3][2];
+    // res[2][3] = c.w - res[3][3];
+
+    return res;
+    
+
+    // glm::vec4 player_pos = view_mat * glm::vec4(0,0,0,1);
+    // float dist = glm::length(glm::quat(1, 0, 0, 0) * (portal_position - glm::vec3(player_pos.x, player_pos.y, player_pos.z)));
+    // glm::vec4 clipPlane(glm::vec3(0.0f, 0.0f, -1.0f), dist);
+    // clipPlane = glm::inverse(glm::transpose(view_mat)) * clipPlane;
+
+    // // if (clipPlane.w > 0.0f)
+    // //     return proj_mat;
+
+    // glm::vec4 q = glm::inverse(proj_mat) * glm::vec4(
+    //         glm::sign(clipPlane.x),
+    //         glm::sign(clipPlane.y),
+    //         1.0f,
+    //         1.0f
+    //         );
+
+    // glm::vec4 c = clipPlane * (2.0f / (glm::dot(clipPlane, q)));
+
+    // glm::mat4 newProj = proj_mat;
+    // // third row = clip plane - fourth row
+    // newProj = glm::row(newProj, 2, c - glm::row(newProj, 3));
+    // return glm::row(proj_mat, 2, c - glm::row(proj_mat, 3));
 }
 
 /**
@@ -366,7 +432,7 @@ void Scene::render_portals(unsigned int shader_program,
             // proj_mat), proj_mat);
             
             //render(shader_program, destView, proj_mat);
-            render(shader_program, destView, clip_portal(portal->get_destination()->get_position(), destView, proj_mat));
+            render(shader_program, destView, clip_portal(portal->get_position(), destView, proj_mat));
         }
         else
         {
@@ -377,7 +443,7 @@ void Scene::render_portals(unsigned int shader_program,
             // proj_mat), proj_mat,
             //render_portals(shader_program, destView, proj_mat,
              //              recursion_level + 1);
-            render_portals(shader_program, destView, clip_portal(portal->get_destination()->get_position(), destView, proj_mat),
+            render_portals(shader_program, destView, clip_portal(portal->get_position(), destView, proj_mat),
                            recursion_level + 1);
         }
 
