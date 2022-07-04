@@ -16,7 +16,7 @@ int main(int argc, char *argv[])
        30, 0), 1.0); std::cout << "amongus 2 loaded" << std::endl;
     */
 
-    Object long_wall_1("long_wall.obj", "green.tga", glm::vec3(0, 10, 31), 0.0);
+    Object long_wall_1("long_wall.obj", "white.tga", glm::vec3(0, 10, 31), 0.0);
     Object long_wall_2("long_wall.obj", "green.tga", glm::vec3(0, 10, 49), 0.0);
     Object long_roof("long_roof.obj", "green.tga", glm::vec3(0, 21, 40), 0.0);
 
@@ -29,9 +29,9 @@ int main(int argc, char *argv[])
     */
 
     std::shared_ptr<Portal> first_portal = std::make_shared<Portal>(
-        Portal(8, 10, glm::vec3(-95, 10, 40), -90.0, glm::vec3(0, 1, 0)));
+        Portal(8, 10, glm::vec3(-85, 10, 40), -90.0, glm::vec3(0, 1, 0)));
     std::shared_ptr<Portal> second_portal = std::make_shared<Portal>(
-        Portal(8, 10, glm::vec3(95, 10, 40), 90.0, glm::vec3(0, 1, 0)));
+        Portal(8, 10, glm::vec3(85, 10, 40), 90.0, glm::vec3(0, 1, 0)));
 
     /*std::shared_ptr<Portal> third_portal = std::make_shared<Portal>(
         Portal(8, 10, glm::vec3(-29, 10, -40), 90.0, glm::vec3(0, 1, 0)));

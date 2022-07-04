@@ -78,6 +78,29 @@ glm::mat4 portal_view(glm::mat4 orig_view, std::shared_ptr<Portal> src,
     return portal_cam;
 }
 
+glm::mat4 clip_portal(glm::vec3 portal_position, glm::mat4 view_mat, glm::mat4 proj_mat)
+{
+    glm::vec4 player_pos = view_mat * glm::vec4(0,0,0,1);
+    float dist = glm::length(glm::quat(1, 0, 0, 0) * (portal_position - glm::vec3(player_pos.x, player_pos.y, player_pos.z)));
+    glm::vec4 clipPlane(glm::vec3(0.0f, 0.0f, -1.0f), dist);
+    clipPlane = glm::inverse(glm::transpose(view_mat)) * clipPlane;
+
+    if (clipPlane.w > 0.0f)
+        return proj_mat;
+
+    glm::vec4 q = glm::inverse(proj_mat) * glm::vec4(
+            glm::sign(clipPlane.x),
+            glm::sign(clipPlane.y),
+            1.0f,
+            1.0f
+            );
+
+    glm::vec4 c = clipPlane * (2.0f / (glm::dot(clipPlane, q)));
+
+    // third row = clip plane - fourth row
+    return glm::row(proj_mat, 2, c - glm::row(proj_mat, 3));
+}
+
 /**
  * Checks whether the line defined by two points la and lb intersects
  * the portal.
@@ -142,7 +165,6 @@ void Scene::update_physics(const float deltaTime,
                            std::shared_ptr<Player> player)
 {
     glm::mat4 prev_pos = player->get_model_view();
-    // std::cout << "begin: " << player->get_yaw() << std::endl;
 
     dynamicsWorld_->stepSimulation(deltaTime * 0.1f / 60.0f, 1);
     btTransform trans;
@@ -152,12 +174,11 @@ void Scene::update_physics(const float deltaTime,
     player->set_position(trans.getOrigin().getX(), trans.getOrigin().getY(),
                          trans.getOrigin().getZ());
 
+    glm::vec4 la = glm::inverse(prev_pos) * glm::vec4(0.0, 0.0, 0.0, 1.0);
+    glm::vec4 lb = glm::inverse(player->get_model_view())
+        * glm::vec4(0.0, 0.0, 0.0, 1.0);
     for (auto portal : portals_)
     {
-        glm::vec4 la = glm::inverse(prev_pos) * glm::vec4(0.0, 0.0, 0.0, 1.0);
-        glm::vec4 lb = glm::inverse(player->get_model_view())
-            * glm::vec4(0.0, 0.0, 0.0, 1);
-
         if (portal_intersection(la, lb, portal))
         {
             std::cout << "la : " << la.x << " " << la.y << " " << la.z
@@ -173,9 +194,7 @@ void Scene::update_physics(const float deltaTime,
                 player->get_model_view(), portal, portal->get_destination());
 
             glm::mat4 new_world_perception = glm::inverse(new_trans_glm);
-            glm::vec3 pos = glm::vec3(new_world_perception[3][0],
-                                      new_world_perception[3][1],
-                                      new_world_perception[3][2]);
+            glm::vec4 pos = new_world_perception * glm::vec4(0.0, 0.0, 0.0, 1.0);
 
             btTransform new_trans_bt;
             new_trans_bt.setIdentity();
@@ -187,7 +206,7 @@ void Scene::update_physics(const float deltaTime,
 
             std::cout << "position: " << player->get_position().x << " "
                       << player->get_position().y << " "
-                      << player->get_position().z << std::endl;
+                      << player->get_position().z << std::endl << std::endl;
 
             if (abs(portal->get_angle()
                     - portal->get_destination()->get_angle())
@@ -203,7 +222,6 @@ void Scene::update_physics(const float deltaTime,
                                     / cos(glm::radians(player->get_pitch())));
                 player->set_yaw(new_yaw * 180 / M_PI);
             }
-
             break;
         }
     }
@@ -346,7 +364,9 @@ void Scene::render_portals(unsigned int shader_program,
             // portal.clippedProjMat(destView, projMat));
             // render(shader_program, portal->clippedProjMat(destView,
             // proj_mat), proj_mat);
-            render(shader_program, destView, proj_mat);
+            
+            //render(shader_program, destView, proj_mat);
+            render(shader_program, destView, clip_portal(portal->get_destination()->get_position(), destView, proj_mat));
         }
         else
         {
@@ -355,7 +375,9 @@ void Scene::render_portals(unsigned int shader_program,
             // above)
             // render_portals(shader_program, portal->clippedProjMat(destView,
             // proj_mat), proj_mat,
-            render_portals(shader_program, destView, proj_mat,
+            //render_portals(shader_program, destView, proj_mat,
+             //              recursion_level + 1);
+            render_portals(shader_program, destView, clip_portal(portal->get_destination()->get_position(), destView, proj_mat),
                            recursion_level + 1);
         }
 
