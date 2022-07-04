@@ -160,10 +160,14 @@ void Scene::update_physics(const float deltaTime,
 
         if (portal_intersection(la, lb, portal))
         {
-            std::cout << "**************************in portal, before set: "
-                      << player->get_yaw() << std::endl;
+            std::cout << "la : " << la.x << " " << la.y << " " << la.z
+                      << std::endl;
+            std::cout << "lb : " << lb.x << " " << lb.y << " " << lb.z
+                      << std::endl;
 
-
+            std::cout << "before position: " << player->get_position().x << " "
+                      << player->get_position().y << " "
+                      << player->get_position().z << std::endl;
 
             glm::mat4 new_trans_glm = portal_view(
                 player->get_model_view(), portal, portal->get_destination());
@@ -181,14 +185,17 @@ void Scene::update_physics(const float deltaTime,
 
             player->set_position(pos.x, pos.y, pos.z);
 
-            std::cout << "position: " << player->get_direction().x << " "
-                      << player->get_direction().y << " "
-                      << player->get_direction().z << std::endl;
+            std::cout << "position: " << player->get_position().x << " "
+                      << player->get_position().y << " "
+                      << player->get_position().z << std::endl;
 
-            if (abs(portal->get_angle() - portal->get_destination()->get_angle()) != 180) {
+            if (abs(portal->get_angle()
+                    - portal->get_destination()->get_angle())
+                != 180)
+            {
                 auto backward = glm::vec3(new_world_perception[2][0],
-                                        new_world_perception[2][1],
-                                        new_world_perception[2][2]);
+                                          new_world_perception[2][1],
+                                          new_world_perception[2][2]);
                 player->set_direction(-backward);
                 player->normalize_direction();
 
@@ -196,6 +203,8 @@ void Scene::update_physics(const float deltaTime,
                                     / cos(glm::radians(player->get_pitch())));
                 player->set_yaw(new_yaw * 180 / M_PI);
             }
+
+            break;
         }
     }
 
