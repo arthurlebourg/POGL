@@ -26,7 +26,8 @@ public:
 
     void draw(const unsigned int shader_program,
               glm::mat4 const &model_view_matrix,
-              glm::mat4 const &projection_matrix);
+              glm::mat4 const &projection_matrix,
+              bool clip);
 
     void render(const unsigned int shader_program,
                 glm::mat4 const &model_view_matrix,
@@ -34,7 +35,8 @@ public:
 
     void render_portals(unsigned int shader_program, glm::mat4 const &view_mat,
                         glm::mat4 const &proj_mat,
-                        unsigned int recursion_level);
+                        unsigned int recursion_level,
+                        bool clip);
 
 private:
     glm::vec3 light_;

@@ -100,7 +100,8 @@ void display()
                           key_states['d'] - key_states['q'], deltaTime);
 
     p->get_scene()->draw(p->shader_program_, p->get_player()->get_model_view(),
-                         p->get_player()->get_projection());
+                         p->get_player()->get_projection(),
+                         key_states['p']);
 }
 
 bool init_glut(int &argc, char *argv[])

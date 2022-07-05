@@ -165,79 +165,12 @@ void Scene::update_physics(const float deltaTime,
 
         if (portal_intersection(la, lb, portal))
         {
-            std::cout << "la : " << la.x << " " << la.y << " " << la.z
-                        << std::endl;
-            std::cout << "lb : " << lb.x << " " << lb.y << " " << lb.z
-                        << std::endl;
-
-            std::cout << "trans position: " << trans.getOrigin().getX() << " "
-                        << trans.getOrigin().getY() << " "
-                        << trans.getOrigin().getZ() << std::endl;
-
-            std::cout << "before position: " << player->get_position().x << " "
-                        << player->get_position().y << " "
-                        << player->get_position().z << std::endl;
-
-            std::cout << "direction: " << player->get_direction().x << " "
-                        << player->get_direction().y << " "
-                        << player->get_direction().z << std::endl;
-            std::cout << "up: " << player->get_up().x << " "
-                        << player->get_up().y << " "
-                        << player->get_up().z << std::endl; 
-            std::cout << "model view: " << std::endl
-            << player->get_model_view()[0][0] << " "
-            << player->get_model_view()[1][0] << " "
-            << player->get_model_view()[2][0] << " "
-            << player->get_model_view()[3][0] << std::endl
-
-            << player->get_model_view()[0][1] << " "
-            << player->get_model_view()[1][1] << " "
-            << player->get_model_view()[2][1] << " "
-            << player->get_model_view()[3][1] << std::endl
-
-            << player->get_model_view()[0][2] << " "
-            << player->get_model_view()[1][2] << " "
-            << player->get_model_view()[2][2] << " "
-            << player->get_model_view()[3][2] << std::endl
-
-            << player->get_model_view()[0][3] << " "
-            << player->get_model_view()[1][3] << " "
-            << player->get_model_view()[2][3] << " "
-            << player->get_model_view()[3][3] << std::endl;
-
-            std::cout << "inverse model view: " << std::endl
-            << tmp[0][0] << " "
-            << tmp[1][0] << " "
-            << tmp[2][0] << " "
-            << tmp[3][0] << std::endl
-
-            << tmp[0][1] << " "
-            << tmp[1][1] << " "
-            << tmp[2][1] << " "
-            << tmp[3][1] << std::endl
-
-            << tmp[0][2] << " "
-            << tmp[1][2] << " "
-            << tmp[2][2] << " "
-            << tmp[3][2] << std::endl
-
-            << tmp[0][3] << " "
-            << tmp[1][3] << " "
-            << tmp[2][3] << " "
-            << tmp[3][3] << std::endl;
-
-
-
             glm::mat4 new_trans_glm = portal_view(
                 player->get_model_view(), portal, portal->get_destination());
 
             glm::mat4 new_world_perception = glm::inverse(new_trans_glm);
             glm::vec4 pos =
                 new_world_perception * glm::vec4(0.0, 0.0, 0.0, 1.0);
-            std::cout << "position: " << pos.x << " "
-                      << pos.y << " "
-                      << pos.z << std::endl
-                      << std::endl;
             btTransform new_trans_bt;
             new_trans_bt.setIdentity();
             new_trans_bt.setOrigin(btVector3(pos.x, pos.y, pos.z));
@@ -245,11 +178,6 @@ void Scene::update_physics(const float deltaTime,
             player_body->getMotionState()->setWorldTransform(new_trans_bt);
 
             player->set_position(pos.x, pos.y, pos.z);
-
-            // std::cout << "position: " << player->get_position().x << " "
-            //           << player->get_position().y << " "
-            //           << player->get_position().z << std::endl
-            //           << std::endl;
 
             if (abs(portal->get_angle()
                     - portal->get_destination()->get_angle())
@@ -284,7 +212,8 @@ void Scene::update_physics(const float deltaTime,
 
 void Scene::draw(const unsigned int shader_program,
                  glm::mat4 const &model_view_matrix,
-                 glm::mat4 const &projection_matrix)
+                 glm::mat4 const &projection_matrix,
+                 bool clip)
 {
     TEST_OPENGL_ERROR();
     glUseProgram(shader_program);
@@ -295,7 +224,7 @@ void Scene::draw(const unsigned int shader_program,
     glStencilMask(0xFF);
     glDepthMask(GL_TRUE);
     glClear(GL_STENCIL_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_COLOR_BUFFER_BIT);
-    render_portals(shader_program, model_view_matrix, projection_matrix, 0);
+    render_portals(shader_program, model_view_matrix, projection_matrix, 0, clip);
     glutSwapBuffers();
     glutPostRedisplay();
 }
@@ -306,6 +235,7 @@ void Scene::render(const unsigned int shader_program,
 {
     set_mat4_uniform(shader_program, "model_view_matrix", model_view_matrix);
     set_mat4_uniform(shader_program, "projection_matrix", projection_matrix);
+    set_vec3_uniform(shader_program, "cam_pos", model_view_matrix * glm::vec4(0,0,0,1));
     for (auto obj : objects_)
     {
         glBindVertexArray(obj->get_VAO());
@@ -320,7 +250,7 @@ void Scene::render(const unsigned int shader_program,
 
 void Scene::render_portals(unsigned int shader_program,
                            glm::mat4 const &view_mat, glm::mat4 const &proj_mat,
-                           unsigned int recursion_level)
+                           unsigned int recursion_level, bool clip)
 {
     for (auto portal : portals_)
     {
@@ -360,6 +290,7 @@ void Scene::render_portals(unsigned int shader_program,
 
         set_mat4_uniform(shader_program, "model_view_matrix", view_mat);
         set_mat4_uniform(shader_program, "projection_matrix", proj_mat);
+        set_vec3_uniform(shader_program, "cam_pos", view_mat * glm::vec4(0,0,0,1));
         set_mat4_uniform(shader_program, "transform", portal->get_transform());
 
         glDrawArrays(GL_TRIANGLES, 0, portal->get_triangles_number());
@@ -406,17 +337,32 @@ void Scene::render_portals(unsigned int shader_program,
             // portal plane drawNonPortals(destView,
             // portal.clippedProjMat(destView, projMat));
 
-            render(shader_program, destView,
-                   portal->clippedProjMat(destView, proj_mat));
+            if (clip)
+            {
+                render(shader_program, destView,
+                       portal->clippedProjMat(destView, proj_mat));
+            }
+            else
+            {
+                render(shader_program, destView, proj_mat);
+            }
         }
         else
         {
             // Recursion case
             // Pass our new view matrix and the clipped projection matrix (see
             // above)
-            render_portals(shader_program, destView,
-                           portal->clippedProjMat(destView, proj_mat),
-                           recursion_level + 1);
+            if (clip)
+            {
+                render_portals(shader_program, destView,
+                        portal->clippedProjMat(destView, proj_mat),
+                        recursion_level + 1, clip);
+            }
+            else
+            {
+                render_portals(shader_program, destView,proj_mat,
+                        recursion_level + 1, clip);
+            }
         }
 
         // Disable color and depth drawing
@@ -450,6 +396,7 @@ void Scene::render_portals(unsigned int shader_program,
 
         set_mat4_uniform(shader_program, "model_view_matrix", view_mat);
         set_mat4_uniform(shader_program, "projection_matrix", proj_mat);
+        set_vec3_uniform(shader_program, "cam_pos", view_mat * glm::vec4(0,0,0,1));
         set_mat4_uniform(shader_program, "transform", portal->get_transform());
 
         glDrawArrays(GL_TRIANGLES, 0, portal->get_triangles_number());
@@ -483,6 +430,7 @@ void Scene::render_portals(unsigned int shader_program,
     // Draw portals into depth buffer
     set_mat4_uniform(shader_program, "model_view_matrix", view_mat);
     set_mat4_uniform(shader_program, "projection_matrix", proj_mat);
+    set_vec3_uniform(shader_program, "cam_pos", view_mat * glm::vec4(0,0,0,1));
     for (auto tmp : portals_)
     {
         glBindVertexArray(tmp->get_VAO());
