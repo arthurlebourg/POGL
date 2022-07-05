@@ -204,7 +204,7 @@ glm::vec3 get_vector(const glm::vec3 point_src, const glm::vec3 point_dest,
     return rotationM * vec;
 }
 
-glm::vec3 get_normale(const glm::vec3 point_src, const glm::vec3 point_dest1,
+glm::vec3 find_normale(const glm::vec3 point_src, const glm::vec3 point_dest1,
                       const glm::vec3 point_dest2, float angle)
 {
     auto vec1 = get_vector(point_src, point_dest1, angle);
@@ -212,4 +212,14 @@ glm::vec3 get_normale(const glm::vec3 point_src, const glm::vec3 point_dest1,
     auto res = glm::normalize(glm::cross(vec1, vec2));
     res.x = -res.x;
     return res;
+}
+
+
+float reset_angle(float angle_to_be_set, const float angle)
+{
+    if (angle_to_be_set > angle)
+        angle_to_be_set -= angle;
+    if (angle_to_be_set < -angle)
+        angle_to_be_set += angle;
+    return angle_to_be_set;
 }

@@ -24,8 +24,6 @@ public:
 
     glm::vec3 get_position();
 
-    // glm::vec3 get_normale();
-
     float get_angle();
 
     glm::vec3 get_rotation();
