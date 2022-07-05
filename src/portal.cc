@@ -91,36 +91,8 @@ void Portal::set_destination(std::shared_ptr<Portal> portal)
 glm::mat4 Portal::clippedProjMat(glm::mat4 const &viewMat,
                                  glm::mat4 const &projMat)
 {
-    // glm::vec4 tmp = viewMat * glm::vec4(0, 0, 0, 1);
-    // glm::vec3 pos = glm::vec3(tmp.x, tmp.y, tmp.z);
-    // float dist = glm::length(position_ - pos);
-    // float dist = glm::length(position_);
-
-    // glm::vec4 clipPlane(glm::quat(0, 
-    //                               sin(glm::radians(angle_) / 2),
-    //                               0,
-    //                               cos(glm::radians(angle_) / 2))
-    //                     * glm::vec3(0.0f,0.0f,-1.0f),
-    //                     dist);
-    // clipPlane = glm::inverse(glm::transpose(viewMat)) * clipPlane;
-
-    // std::cout << clipPlane.w << std::endl;
-    // // if (clipPlane.w > 0.0f)
-    // //     return projMat;
-
-    // glm::vec4 q = glm::inverse(projMat)
-    //     * glm::vec4(glm::sign(clipPlane.x), glm::sign(clipPlane.y), 1.0f, 1.0f);
-
-    // glm::vec4 c = clipPlane * (2.0f / (glm::dot(clipPlane, q)));
-
-    // glm::mat4 newProj = projMat;
-    // // third row = clip plane - fourth row
-    // newProj = glm::row(newProj, 2, c - glm::row(newProj, 3));
-
-    // return newProj;
-
-
-    glm::vec4 clipPlane(normale_sortant_,glm::dot(normale_sortant_, position_));
+    glm::vec3 normale = glm::normalize(transform_ * glm::vec4(0,0,1,0));
+    glm::vec4 clipPlane(normale_sortant_,glm::dot(normale, position_));
     clipPlane = glm::inverse(glm::transpose(viewMat)) * clipPlane;
     glm::vec4 q;
     q.x = (glm::sign(clipPlane.x) + projMat[2][0]) / projMat[0][0];
