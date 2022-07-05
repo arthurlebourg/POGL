@@ -14,9 +14,6 @@ bool key_states[256];
 float deltaTime = 0.0f; // Time between current frame and last frame
 float lastFrame = 0.0f; // Time of last frame
 
-glm::mat4 model_view_matrix;
-glm::mat4 projection_matrix;
-
 void mouse_motion_callback(int x, int y)
 {
     if (firstMouse)
@@ -98,16 +95,12 @@ void display()
     lastFrame = currentFrame;
 
     p->get_scene()->update_physics(deltaTime, p->get_player());
+    p->get_player()->set_speed(key_states['a']);
     p->get_player()->move(key_states['z'] - key_states['s'],
                           key_states['d'] - key_states['q'], deltaTime);
-    p->update_position();
 
-    // p->get_scene()->render(p->shader_program_, model_view_matrix,
-    // projection_matrix);
-    // p->get_scene()->render_portals(p->shader_program_, model_view_matrix,
-    //                             projection_matrix, 0);
-    p->get_scene()->draw(p->shader_program_, model_view_matrix,
-                         projection_matrix);
+    p->get_scene()->draw(p->shader_program_, p->get_player()->get_model_view(),
+                         p->get_player()->get_projection());
 }
 
 bool init_glut(int &argc, char *argv[])
@@ -240,8 +233,6 @@ std::shared_ptr<Program> Program::make_program(std::string &vertex_shader_src,
 
     glUseProgram(p->shader_program_);
 
-    p->update_position();
-
     p->set_vec3_uniform("light_pos", scene->get_light());
 
     p->ready_ = true;
@@ -302,13 +293,4 @@ std::shared_ptr<Scene> Program::get_scene()
 std::shared_ptr<Player> Program::get_player()
 {
     return player_;
-}
-
-void Program::update_position()
-{
-    model_view_matrix = glm::lookAt(
-        player_->get_position(),
-        player_->get_position() + player_->get_direction(), player_->get_up());
-
-    projection_matrix = glm::frustum(-0.5, 0.5, -0.5, 0.5, 1.0, 500.0);
 }
