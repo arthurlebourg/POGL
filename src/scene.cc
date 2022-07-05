@@ -137,6 +137,7 @@ glm::mat3 get_rotationM(float scalingFacotr, glm::mat4 m)
                     m[2][0], m[2][1], m[2][2]);
     return glm::inverse(res);
 }
+bool first = true;
 
 void Scene::update_physics(const float deltaTime,
                            std::shared_ptr<Player> player)
@@ -155,6 +156,10 @@ void Scene::update_physics(const float deltaTime,
     {
         auto tmp = glm::inverse(player->get_model_view());
         glm::vec4 la = glm::inverse(prev_pos) * glm::vec4(0.0, 0.0, 0.0, 1.0);
+        if (!is_sameSign(player->get_position().x, la.x)) {
+            break;
+        }
+
         glm::vec4 lb =
             tmp * glm::vec4(0.0, 0.0, 0.0, 1.0);
 
@@ -164,6 +169,10 @@ void Scene::update_physics(const float deltaTime,
                         << std::endl;
             std::cout << "lb : " << lb.x << " " << lb.y << " " << lb.z
                         << std::endl;
+
+            std::cout << "trans position: " << trans.getOrigin().getX() << " "
+                        << trans.getOrigin().getY() << " "
+                        << trans.getOrigin().getZ() << std::endl;
 
             std::cout << "before position: " << player->get_position().x << " "
                         << player->get_position().y << " "

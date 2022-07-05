@@ -213,3 +213,11 @@ glm::vec3 get_normale(const glm::vec3 point_src, const glm::vec3 point_dest1,
     res.x = -res.x;
     return res;
 }
+
+bool is_sameSign(const float f1, const float f2)
+{
+    if ((f1 > 0 && f2 < 0) || (f1 < 0 && f2 > 0)) {
+        return false;
+    }
+    return true;
+}
