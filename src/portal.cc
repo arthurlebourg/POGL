@@ -87,6 +87,7 @@ glm::mat4 Portal::clippedProjMat(glm::mat4 const &viewMat,
     glm::vec3 normale = glm::normalize(transform_ * glm::vec4(0, 0, -1, 0));
     glm::vec4 clipPlane(normale, glm::dot(normale, position_));
     clipPlane = glm::inverse(glm::transpose(viewMat)) * clipPlane;
+
     glm::vec4 q;
     q.x = (glm::sign(clipPlane.x) + projMat[2][0]) / projMat[0][0];
     q.y = (glm::sign(clipPlane.y) + projMat[2][1]) / projMat[1][1];
