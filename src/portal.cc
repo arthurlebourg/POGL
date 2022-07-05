@@ -92,10 +92,12 @@ glm::mat4 Portal::clippedProjMat(glm::mat4 const &viewMat,
                                  glm::mat4 const &projMat)
 {
     float dist = glm::length(position_);
-    glm::vec4 clipPlane(glm::vec3(0.0f, 0.0f, -1.0f), dist);
+
+    glm::vec4 clipPlane(glm::quat(0,0,0,0) * glm::vec3(0,0,-1), dist);
     clipPlane = glm::inverse(glm::transpose(viewMat)) * clipPlane;
 
-    if (clipPlane.w > 0.0f)
+    std::cout << clipPlane.w << std::endl;
+    if (clipPlane.w < 0.0f)
         return projMat;
 
     glm::vec4 q = glm::inverse(projMat)

@@ -432,7 +432,7 @@ void Scene::render_portals(unsigned int shader_program,
             // proj_mat), proj_mat);
             
             //render(shader_program, destView, proj_mat);
-            render(shader_program, destView, clip_portal(portal->get_position(), destView, proj_mat));
+            render(shader_program, destView, portal->clippedProjMat(destView, proj_mat));
         }
         else
         {
@@ -443,7 +443,7 @@ void Scene::render_portals(unsigned int shader_program,
             // proj_mat), proj_mat,
             //render_portals(shader_program, destView, proj_mat,
              //              recursion_level + 1);
-            render_portals(shader_program, destView, clip_portal(portal->get_position(), destView, proj_mat),
+            render_portals(shader_program, destView, portal->clippedProjMat(destView, proj_mat),
                            recursion_level + 1);
         }
 
