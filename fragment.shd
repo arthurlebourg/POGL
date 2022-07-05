@@ -29,6 +29,6 @@ void main() {
     float spec = pow(max(dot(cam_pos, reflectDir), 0.0), 32);
     vec3 specular = specularStrength * spec * light_color;
 
-    vec3 res = (ambient + diffuse + specular) * object_color;
+    vec3 res = (ambient + diffuse) * object_color;
     output_color = vec4(res, 1.0f) * texture(texture_sampler, uv_frag);
 }
