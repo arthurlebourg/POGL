@@ -24,20 +24,20 @@ std::shared_ptr<Program> amongus(std::string vertex_src,
                        glm::vec3(1000, 30, 30), 1.0);
 
     std::shared_ptr<Portal> first_portal = std::make_shared<Portal>(
-        Portal(5, 10, glm::vec3(0.1, 10, 5), -90.0, glm::vec3(0, 1, 0)));
+        Portal(5, 10, glm::vec3(0, 5, 5), 90.0, glm::vec3(0, 1, 0)));
     std::shared_ptr<Portal> second_portal = std::make_shared<Portal>(
-        Portal(5, 10, glm::vec3(999.9, 10, 5), 90.0, glm::vec3(0, 1, 0)));
+        Portal(5, 10, glm::vec3(1000, 5, 5), -90.0, glm::vec3(0, 1, 0)));
 
-    std::shared_ptr<Portal> third_portal = std::make_shared<Portal>(
+    /*std::shared_ptr<Portal> third_portal = std::make_shared<Portal>(
         Portal(5, 10, glm::vec3(-0.1, 10, 5), 90.0, glm::vec3(0, 1, 0)));
     std::shared_ptr<Portal> fourth_portal = std::make_shared<Portal>(
         Portal(5, 10, glm::vec3(1000.1, 10, 5), -90.0, glm::vec3(0, 1, 0)));
-
+    */
     first_portal->set_destination(second_portal);
     second_portal->set_destination(first_portal);
 
-    third_portal->set_destination(fourth_portal);
-    fourth_portal->set_destination(third_portal);
+    //third_portal->set_destination(fourth_portal);
+    //fourth_portal->set_destination(third_portal);
 
     auto scene = std::make_shared<Scene>(glm::vec3(0.0, 10.0, 0.0));
 
@@ -78,6 +78,16 @@ std::shared_ptr<Program> long_tunnel(std::string vertex_src,
     Object long_roof("objects/long_roof.obj", "textures/green.tga",
                      glm::vec3(0, 21, 40), 0.0);
 
+    Object plane_far("objects/plane.obj", "textures/white.tga", glm::vec3(0, 750, 0),
+                 0.0);
+
+    Object long_wall_1_far("objects/long_wall.obj", "textures/white.tga",
+                       glm::vec3(0, 760, 31), 0.0);
+    Object long_wall_2_far("objects/long_wall.obj", "textures/green.tga",
+                       glm::vec3(0, 760, 49), 0.0);
+    Object long_roof_far("objects/long_roof.obj", "textures/green.tga",
+                     glm::vec3(0, 21+750, 40), 0.0);
+
     Object small_wall_1("objects/small_wall.obj", "textures/green.tga",
                         glm::vec3(0, 10, -31), 0.0);
     Object small_wall_2("objects/small_wall.obj", "textures/green.tga",
@@ -93,12 +103,12 @@ std::shared_ptr<Program> long_tunnel(std::string vertex_src,
     std::shared_ptr<Portal> third_portal = std::make_shared<Portal>(
         Portal(8, 10, glm::vec3(-29, 10, -40), -90.0, glm::vec3(0, 1, 0)));
     std::shared_ptr<Portal> fourth_portal = std::make_shared<Portal>(
-        Portal(8, 10, glm::vec3(-90, 10, 40), 90.0, glm::vec3(0, 1, 0)));
+        Portal(8, 10, glm::vec3(-90, 760, 40), 90.0, glm::vec3(0, 1, 0)));
 
     std::shared_ptr<Portal> fifth_portal = std::make_shared<Portal>(
         Portal(8, 10, glm::vec3(29, 10, -40), 90.0, glm::vec3(0, 1, 0)));
     std::shared_ptr<Portal> sixth_portal = std::make_shared<Portal>(
-        Portal(8, 10, glm::vec3(90, 10, 40), -90.0, glm::vec3(0, 1, 0)));
+        Portal(8, 10, glm::vec3(90, 760, 40), -90.0, glm::vec3(0, 1, 0)));
 
     first_portal->set_destination(second_portal);
     second_portal->set_destination(first_portal);
@@ -123,11 +133,16 @@ std::shared_ptr<Program> long_tunnel(std::string vertex_src,
     scene->add_player(player);
 
     scene->add_object(std::make_shared<Object>(plane));
+    scene->add_object(std::make_shared<Object>(plane_far));
 
     scene->add_object(std::make_shared<Object>(long_wall_1));
     scene->add_object(std::make_shared<Object>(long_wall_2));
     scene->add_object(std::make_shared<Object>(long_roof));
 
+    scene->add_object(std::make_shared<Object>(long_wall_1_far));
+    scene->add_object(std::make_shared<Object>(long_wall_2_far));
+    scene->add_object(std::make_shared<Object>(long_roof_far));
+    
     scene->add_object(std::make_shared<Object>(small_wall_1));
     scene->add_object(std::make_shared<Object>(small_wall_2));
     scene->add_object(std::make_shared<Object>(small_roof));
