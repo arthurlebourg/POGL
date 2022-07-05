@@ -46,3 +46,5 @@ glm::vec3 find_normale(const glm::vec3 point_src, const glm::vec3 point_dest1,
                       const glm::vec3 point_dest2, float angle);
 
 float reset_angle(float angle_to_be_set, const float angle);
+
+bool is_sameSign(const float f1, const float f2);
