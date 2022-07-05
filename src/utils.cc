@@ -214,7 +214,6 @@ glm::vec3 find_normale(const glm::vec3 point_src, const glm::vec3 point_dest1,
     return res;
 }
 
-
 float reset_angle(float angle_to_be_set, const float angle)
 {
     if (angle_to_be_set > angle)
@@ -222,4 +221,12 @@ float reset_angle(float angle_to_be_set, const float angle)
     if (angle_to_be_set < -angle)
         angle_to_be_set += angle;
     return angle_to_be_set;
+}
+
+bool is_sameSign(const float f1, const float f2)
+{
+    if ((f1 > 0 && f2 < 0) || (f1 < 0 && f2 > 0)) {
+        return false;
+    }
+    return true;
 }

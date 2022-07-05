@@ -137,6 +137,7 @@ glm::mat3 get_rotationM(float scalingFacotr, glm::mat4 m)
                     m[2][0], m[2][1], m[2][2]);
     return glm::inverse(res);
 }
+bool first = true;
 
 void Scene::update_physics(const float deltaTime,
                            std::shared_ptr<Player> player)
@@ -151,21 +152,81 @@ void Scene::update_physics(const float deltaTime,
     player->set_position(trans.getOrigin().getX(), trans.getOrigin().getY(),
                          trans.getOrigin().getZ());
 
-    glm::vec4 la = glm::inverse(prev_pos) * glm::vec4(0.0, 0.0, 0.0, 1.0);
-    glm::vec4 lb =
-        glm::inverse(player->get_model_view()) * glm::vec4(0.0, 0.0, 0.0, 1.0);
     for (auto portal : portals_)
     {
+        auto tmp = glm::inverse(player->get_model_view());
+        glm::vec4 la = glm::inverse(prev_pos) * glm::vec4(0.0, 0.0, 0.0, 1.0);
+        if (!is_sameSign(player->get_position().x, la.x)) {
+            break;
+        }
+
+        glm::vec4 lb =
+            tmp * glm::vec4(0.0, 0.0, 0.0, 1.0);
+
         if (portal_intersection(la, lb, portal))
         {
             std::cout << "la : " << la.x << " " << la.y << " " << la.z
-                      << std::endl;
+                        << std::endl;
             std::cout << "lb : " << lb.x << " " << lb.y << " " << lb.z
-                      << std::endl;
+                        << std::endl;
+
+            std::cout << "trans position: " << trans.getOrigin().getX() << " "
+                        << trans.getOrigin().getY() << " "
+                        << trans.getOrigin().getZ() << std::endl;
 
             std::cout << "before position: " << player->get_position().x << " "
-                      << player->get_position().y << " "
-                      << player->get_position().z << std::endl;
+                        << player->get_position().y << " "
+                        << player->get_position().z << std::endl;
+
+            std::cout << "direction: " << player->get_direction().x << " "
+                        << player->get_direction().y << " "
+                        << player->get_direction().z << std::endl;
+            std::cout << "up: " << player->get_up().x << " "
+                        << player->get_up().y << " "
+                        << player->get_up().z << std::endl; 
+            std::cout << "model view: " << std::endl
+            << player->get_model_view()[0][0] << " "
+            << player->get_model_view()[1][0] << " "
+            << player->get_model_view()[2][0] << " "
+            << player->get_model_view()[3][0] << std::endl
+
+            << player->get_model_view()[0][1] << " "
+            << player->get_model_view()[1][1] << " "
+            << player->get_model_view()[2][1] << " "
+            << player->get_model_view()[3][1] << std::endl
+
+            << player->get_model_view()[0][2] << " "
+            << player->get_model_view()[1][2] << " "
+            << player->get_model_view()[2][2] << " "
+            << player->get_model_view()[3][2] << std::endl
+
+            << player->get_model_view()[0][3] << " "
+            << player->get_model_view()[1][3] << " "
+            << player->get_model_view()[2][3] << " "
+            << player->get_model_view()[3][3] << std::endl;
+
+            std::cout << "inverse model view: " << std::endl
+            << tmp[0][0] << " "
+            << tmp[1][0] << " "
+            << tmp[2][0] << " "
+            << tmp[3][0] << std::endl
+
+            << tmp[0][1] << " "
+            << tmp[1][1] << " "
+            << tmp[2][1] << " "
+            << tmp[3][1] << std::endl
+
+            << tmp[0][2] << " "
+            << tmp[1][2] << " "
+            << tmp[2][2] << " "
+            << tmp[3][2] << std::endl
+
+            << tmp[0][3] << " "
+            << tmp[1][3] << " "
+            << tmp[2][3] << " "
+            << tmp[3][3] << std::endl;
+
+
 
             glm::mat4 new_trans_glm = portal_view(
                 player->get_model_view(), portal, portal->get_destination());
@@ -173,7 +234,10 @@ void Scene::update_physics(const float deltaTime,
             glm::mat4 new_world_perception = glm::inverse(new_trans_glm);
             glm::vec4 pos =
                 new_world_perception * glm::vec4(0.0, 0.0, 0.0, 1.0);
-
+            std::cout << "position: " << pos.x << " "
+                      << pos.y << " "
+                      << pos.z << std::endl
+                      << std::endl;
             btTransform new_trans_bt;
             new_trans_bt.setIdentity();
             new_trans_bt.setOrigin(btVector3(pos.x, pos.y, pos.z));
@@ -182,10 +246,10 @@ void Scene::update_physics(const float deltaTime,
 
             player->set_position(pos.x, pos.y, pos.z);
 
-            std::cout << "position: " << player->get_position().x << " "
-                      << player->get_position().y << " "
-                      << player->get_position().z << std::endl
-                      << std::endl;
+            // std::cout << "position: " << player->get_position().x << " "
+            //           << player->get_position().y << " "
+            //           << player->get_position().z << std::endl
+            //           << std::endl;
 
             if (abs(portal->get_angle()
                     - portal->get_destination()->get_angle())
