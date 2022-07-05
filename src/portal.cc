@@ -91,8 +91,8 @@ void Portal::set_destination(std::shared_ptr<Portal> portal)
 glm::mat4 Portal::clippedProjMat(glm::mat4 const &viewMat,
                                  glm::mat4 const &projMat)
 {
-    glm::vec3 normale = glm::normalize(transform_ * glm::vec4(0,0,1,0));
-    glm::vec4 clipPlane(normale_sortant_,glm::dot(normale, position_));
+    glm::vec3 normale = glm::normalize(transform_ * glm::vec4(0, 0, -1, 0));
+    glm::vec4 clipPlane(normale, glm::dot(normale, position_));
     clipPlane = glm::inverse(glm::transpose(viewMat)) * clipPlane;
     glm::vec4 q;
     q.x = (glm::sign(clipPlane.x) + projMat[2][0]) / projMat[0][0];

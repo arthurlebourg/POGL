@@ -152,8 +152,8 @@ void Scene::update_physics(const float deltaTime,
                          trans.getOrigin().getZ());
 
     glm::vec4 la = glm::inverse(prev_pos) * glm::vec4(0.0, 0.0, 0.0, 1.0);
-    glm::vec4 lb = glm::inverse(player->get_model_view())
-        * glm::vec4(0.0, 0.0, 0.0, 1.0);
+    glm::vec4 lb =
+        glm::inverse(player->get_model_view()) * glm::vec4(0.0, 0.0, 0.0, 1.0);
     for (auto portal : portals_)
     {
         if (portal_intersection(la, lb, portal))
@@ -171,7 +171,8 @@ void Scene::update_physics(const float deltaTime,
                 player->get_model_view(), portal, portal->get_destination());
 
             glm::mat4 new_world_perception = glm::inverse(new_trans_glm);
-            glm::vec4 pos = new_world_perception * glm::vec4(0.0, 0.0, 0.0, 1.0);
+            glm::vec4 pos =
+                new_world_perception * glm::vec4(0.0, 0.0, 0.0, 1.0);
 
             btTransform new_trans_bt;
             new_trans_bt.setIdentity();
@@ -183,7 +184,8 @@ void Scene::update_physics(const float deltaTime,
 
             std::cout << "position: " << player->get_position().x << " "
                       << player->get_position().y << " "
-                      << player->get_position().z << std::endl << std::endl;
+                      << player->get_position().z << std::endl
+                      << std::endl;
 
             if (abs(portal->get_angle()
                     - portal->get_destination()->get_angle())
@@ -339,17 +341,17 @@ void Scene::render_portals(unsigned int shader_program,
             // use an edited projection matrix to set the near plane to the
             // portal plane drawNonPortals(destView,
             // portal.clippedProjMat(destView, projMat));
-            // render(shader_program, portal->clippedProjMat(destView,
-            // proj_mat), proj_mat);
-            
-            render(shader_program, destView, portal->clippedProjMat(destView, proj_mat));
+
+            render(shader_program, destView,
+                   portal->clippedProjMat(destView, proj_mat));
         }
         else
         {
             // Recursion case
             // Pass our new view matrix and the clipped projection matrix (see
             // above)
-            render_portals(shader_program, destView, portal->clippedProjMat(destView, proj_mat),
+            render_portals(shader_program, destView,
+                           portal->clippedProjMat(destView, proj_mat),
                            recursion_level + 1);
         }
 
