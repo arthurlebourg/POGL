@@ -38,8 +38,8 @@ public:
                              glm::mat4 const &projMat);
 
 private:
-    float angle_;
     glm::vec3 position_;
+    float angle_;
     glm::vec3 rotation_;
     glm::mat4 transform_;
     unsigned int VAO_;
