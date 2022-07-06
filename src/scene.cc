@@ -137,7 +137,6 @@ glm::mat3 get_rotationM(float scalingFacotr, glm::mat4 m)
                     m[2][0], m[2][1], m[2][2]);
     return glm::inverse(res);
 }
-bool first = true;
 
 void Scene::update_physics(const float deltaTime,
                            std::shared_ptr<Player> player)
