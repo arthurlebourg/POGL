@@ -40,11 +40,17 @@ btMatrix3x3 glmToBullet(const glm::mat3 &m);
 
 btTransform glmToBullet(const glm::mat4 &m);
 
+// Calculate vector defined by 2 points on which a rotation is applied
 glm::vec3 get_vector(const glm::vec3 point_src, const glm::vec3 point_dest,
                      float angle);
+// Calculate normalised vector (vecteur normal sortant) perpendicular to the plane (portal)
+// The plane contains and is defined by 3 points and a rotataion angle
 glm::vec3 find_normale(const glm::vec3 point_src, const glm::vec3 point_dest1,
                       const glm::vec3 point_dest2, float angle);
 
+// For easier debugging, reset angle to 0 deg if angle exceeds 360 deg
 float reset_angle(float angle_to_be_set, const float angle);
 
+// Compare if two floats have the same sign
+// To treat the double teleportation issue
 bool is_sameSign(const float f1, const float f2);
