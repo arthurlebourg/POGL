@@ -155,6 +155,7 @@ void Scene::update_physics(const float deltaTime,
     {
         glm::vec4 la = glm::inverse(prev_pos) * glm::vec4(0.0, 0.0, 0.0, 1.0);
         
+        // To deal with the consecutive double tp due to the trans calculation
         if (!is_sameSign(player->get_position().x, la.x)) {
             break;
         }
@@ -178,6 +179,8 @@ void Scene::update_physics(const float deltaTime,
 
             player->set_position(pos.x, pos.y, pos.z);
 
+            // While diff between portal_angle and its destination angle is 180,
+            // no need to reset direction and yaw
             if (abs(portal->get_angle()
                     - portal->get_destination()->get_angle())
                 != 180)
@@ -216,7 +219,6 @@ void Scene::draw(const unsigned int shader_program,
 {
     TEST_OPENGL_ERROR();
     glUseProgram(shader_program);
-    TEST_OPENGL_ERROR();
     TEST_OPENGL_ERROR();
     glClearColor(0.0f, 0.0f, 0.5f, 1.0f);
     glColorMask(GL_TRUE, GL_TRUE, GL_TRUE, GL_TRUE);
